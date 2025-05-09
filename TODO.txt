@@ -1,0 +1,25 @@
+Reassemble config.py
+
+repair product before update - check is valid for update & its discount %
+Repair product on update - when receive webhook call again fetch product from shopify instead of using webhook data
+repair product after update - check for all variants is there entry in database
+
+Sometimes - Cant handle new variant added
+    if child_variant_count != parent_variant_count
+        - delete & create new product
+
+develop Delete product
+develop Create product
+
+draft-order -> Actual Order
+
+Async All functions
+try-except block addition
+
+
+
+# Testing
+
+- Create new Customer in B2B - store
+ - Place Order using it
+   - Place another other
