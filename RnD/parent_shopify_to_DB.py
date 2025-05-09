@@ -1,60 +1,3 @@
-# import os
-# from dotenv import load_dotenv
-# from supabase import create_client, Client
-#
-# # Load environment variables from the .env file
-# load_dotenv()
-#
-# # Retrieve the Supabase URL and API key from the environment
-# SUPABASE_URL = os.getenv("SUPABASE_URL")
-# SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-#
-# # Initialize the Supabase client
-# supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-#
-#
-# def main():
-#     # --- 1. Create (Insert) ---
-#     print("Inserting a new record...")
-#     # Define the record you want to insert
-#     new_record = {
-#         "name": "Item 1+1",
-#         "description": "This is the first item"
-#     }
-#     response = supabase.table("items").insert(new_record).execute()
-#
-#     print("Inserted Data:", response.data)
-#
-#     # Capture the inserted item's ID (assuming your table has a primary key column named 'id')
-#     inserted_id = response.data[0]['id']
-#
-#     # --- 2. Read (Retrieve) ---
-#     print("\nRetrieving records...")
-#     response = supabase.table("items").select("*").execute()
-#
-#
-#     # --- 3. Update (Alter) ---
-#     print("\nUpdating the inserted record...")
-#     update_record = {
-#         "name": "Updated Item 1",
-#         "description": "Updated description"
-#     }
-#     response = supabase.table("items").update(update_record).eq("id", inserted_id).execute()
-#
-#     print("Updated Data:", response.data)
-#
-#     # --- 4. Delete ---
-#     # print("\nDeleting the updated record...")
-#     # response = supabase.table("items").delete().eq("id", inserted_id).execute()
-#     #
-#     # print("Deleted Record:", response.data)
-#
-#
-# if __name__ == "__main__":
-#     main()
-
-
-
 import os
 import time
 import requests
@@ -101,7 +44,7 @@ query ($first: Int!, $after: String) {
         productType
         descriptionHtml
         tags
-        variants(first: 100) {
+        variants(first: 249) {
           edges {
             node {
               id
@@ -155,15 +98,9 @@ def insert_product_into_supabase(product):
     # If tags is a list, join with commas; otherwise use empty string.
     tags_value = ",".join(tags) if isinstance(tags, list) else str(tags)
     status = product.get("status", "active")  # default status
+    status = status.lower()=="active"
 
-    new_product = {
-        "product_id": product_id,
-        "title": title,
-        "product_type": product_type,
-        "description": description,
-        "tags": tags_value,
-        "status": status
-    }
+
     # print("Inserting product:", new_product)
     #
     # prod_response = supabase.table("products").insert(new_product).execute()
@@ -198,9 +135,7 @@ def insert_product_into_supabase(product):
             variant_id = variant_id_str  # Fallback to string if conversion fails
 
         var_title = variant.get("title", "-")
-        # Replace default titles with hyphen.
-        if var_title in ["Default Title", "Default"]:
-            var_title = "-"
+
         sku = variant.get("sku", "")
         # Convert price to float if possible.
         try:
@@ -215,15 +150,52 @@ def insert_product_into_supabase(product):
             "title": title,
             "tags": tags_value,
             "images": all_images,
-            "retail_price": price,
-            "b2b_price": price,
-            "sync_enable": True,
-            "inv_quantity": inventory_quantity
+            "product_active": status,
+            "inv_quantity": inventory_quantity,
+            "sync_enable":True
         }
         prod_response = supabase.table("products").insert(new_variant).execute()
         print("Inserted product:", prod_response)
         break
 
+
+def insert_product_variant_into_supabase(product):
+    full_product_id = product["id"]
+    pid = full_product_id.split('/')[-1]
+    pid = int(pid)
+    variants_edges = product.get("variants", {}).get("edges", [])
+    for variant_edge in variants_edges:
+        variant = variant_edge["node"]
+        full_variant_id = variant["id"]
+        # Convert variant id string to int (if numeric part is convertible)
+        variant_id_str = full_variant_id.split('/')[-1]
+        try:
+            variant_id = int(variant_id_str)
+        except ValueError:
+            variant_id = 404  # Fallback to string if conversion fails
+    
+        var_title = variant.get("title", "-")
+
+        # sku = variant.get("sku", "")
+        # Convert price to float if possible.
+        try:
+            print(variant.get("price"))
+            price = float(variant.get("price"))
+        except (ValueError, TypeError):
+            price = 0
+        inventory_quantity = variant.get("inventoryQuantity", 0)
+    
+        new_variant = {
+            "pid": pid,
+            "vid": variant_id,
+            "title": var_title,
+            "retail_price": price,
+            "b2b_price": price,
+            "inv_quantity": inventory_quantity
+        }
+        prod_response = supabase.table("variants").insert(new_variant).execute()
+        print("Inserted variant:", prod_response)
+            
 # ---------------------------
 # Main process: Fetch from Shopify and insert into Supabase
 # ---------------------------
@@ -237,16 +209,25 @@ def main():
             response = requests.post(shopify_url, headers=shopify_headers, json=payload)
             response.raise_for_status()
             data = response.json()
-            time.sleep(2)
+            time.sleep(0.5)
         except requests.exceptions.RequestException as e:
             print(f"Encountered error: {e}. Retrying in 60 seconds...")
-            time.sleep(60)
+            time.sleep(30)
             continue  # Retry on error
 
         products_edges = data["data"]["products"]["edges"]
+        count =0
         for product_edge in products_edges:
+            count = count+1
+            if count == 285:
+                break
             product = product_edge["node"]
             insert_product_into_supabase(product)
+            insert_product_variant_into_supabase(product)
+          
+        break
+
+
 
         # Update pagination
         page_info = data["data"]["products"]["pageInfo"]

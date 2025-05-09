@@ -1,7 +1,7 @@
-import logs_handler
-import logs_handler.config
+from RnD import logs_handler
+import RnD.logs_handler.config
 from pythonjsonlogger import jsonlogger
-from logs_handler.handlers import RotatingFileHandler, QueueHandler, QueueListener
+from RnD.logs_handler import RotatingFileHandler, QueueHandler, QueueListener
 from queue import SimpleQueue
 
 def setup_production_logger(log_file_path):
