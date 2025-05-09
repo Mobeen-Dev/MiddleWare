@@ -163,6 +163,9 @@ class Shopify:
     return data.get("data", {}).get("product")
   
   async def send_graphql_mutation(self, mutation: str, variables: dict, receiver: str = "child"):
+    print("Variables:")
+    print(variables)
+    print()
     try:
       async with aiohttp.ClientSession() as session:
         async with session.post(
@@ -434,9 +437,8 @@ class Shopify:
     new_product = await self.send_graphql_mutation(mutation, query_params)
     return new_product
   
-  async def make_new_customer(self, customer: dict):
-    print("making new custoemr")
-    mutation = """
+  def customer_create_mutation(self)->str:
+    return  """
     mutation CreateCustomer($input: CustomerInput!) {
       customerCreate(input: $input) {
         customer {
@@ -457,6 +459,9 @@ class Shopify:
       }
     }
     """
+  
+  async def make_new_customer(self, customer: dict):
+    mutation = self.customer_create_mutation()
     address = customer["default_address"]
     variables = {
       "input": {
@@ -476,19 +481,19 @@ class Shopify:
         ]
       }
     }
-    payload = {"query": mutation, "variables": variables}
-
 
     try:
-      timeout = aiohttp.ClientTimeout(total=5)
-      async with aiohttp.ClientSession(timeout=timeout) as session, \
-          session.post(self.URL, headers=self.HEADER, json=payload) as resp:
-        resp.raise_for_status()
-        data = await resp.json()
-      
-      return data["data"]["customerCreate"]["customer"]["id"]
+      data = await self.send_graphql_mutation(mutation, variables, "Parent")
+      print("Data")
+      print(data)
+      new_customer = data["data"]["customerCreate"]["customer"]
+      if new_customer:
+        print("id ay gayi")
+        return new_customer["id"]
+      else:
+        return await self.process_customer(customer)
     except (aiohttp.ClientError, asyncio.TimeoutError) as e:
-      self.logger.warning(f"fetch_product_by_id :: {e}")
+      self.logger.warning(f"fetch_product_by_id :: Failed to create new customer ::{e}")
       return None
   
   async def process_customer(self, customer, phone_no=None):
@@ -503,7 +508,7 @@ class Shopify:
           hasNextPage
           endCursor
         }
-            nodes {
+        nodes {
         id
         firstName
         lastName
@@ -536,17 +541,18 @@ class Shopify:
       filters += f"order. phone:{phone_no}"
 
     variables["filter"] = filters
-
-    payload = {"query": query, "variables": variables}
-    
     
     try:
       data = await self.send_graphql_mutation(query, variables, "Parent")
       data = data["data"]["customers"]["nodes"]
 
       for node in data:
-        node_email = node["defaultEmailAddress"]["emailAddress"]
-        node_phone_number = node["defaultPhoneNumber"]["phoneNumber"]
+        node_email = node.get("defaultEmailAddress", {})
+        if node_email:
+          node_email = node_email.get("emailAddress", None)
+        node_phone_number = node.get("defaultPhoneNumber",{})
+        if node_phone_number:
+          node_phone_number = node_phone_number.get("phoneNumber", None)
         if mail and node_email == mail:
           return node["id"]
         elif node_phone_number == phone and phone:
@@ -554,9 +560,13 @@ class Shopify:
         elif node_phone_number == phone_no and phone_no:
           return node["id"]
       
-      return self.make_new_customer(customer)
+      return await self.make_new_customer(customer)
+    
     except (aiohttp.ClientError, asyncio.TimeoutError) as e:
       self.logger.warning(f"process_customer :: {e}")
+      return None
+    except Exception as e:
+      self.logger.warning(f"process_customer :: Crash ::{e}")
       return None
   
   def process_shipping_address(self, shipping_address: dict):

@@ -51,7 +51,7 @@ class SyncService:
     response = await self.parent_shopify.send_graphql_mutation(mutation, variables, "Parent")
     id = response["data"]["draftOrderCreate"]["draftOrder"]["id"]
     id = id.split('/')[-1]
-    self.logger.info(f"Place Order{orders["id"]} -> {id}")
+    self.logger.info(f"Place Order {orders["id"]} -> {id}")
   
   async def parse_order_webhook(self, order_webhook: dict):
     customer = order_webhook["customer"]
@@ -66,7 +66,6 @@ class SyncService:
     line_items, total_bill = self.process_line_items(line_items)
     variables = {
       "input": {
-        "customerId": cid,
         "note": order_note,
         "tags": [
           "B2B"
@@ -86,6 +85,8 @@ class SyncService:
       variables["input"]["email"] = email
     if phone:
       variables["input"]["phone"] = phone
+    if cid:
+      variables["input"]["customerId"] = cid
     
     return variables
   

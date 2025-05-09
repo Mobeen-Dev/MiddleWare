@@ -30,7 +30,15 @@ async def receive_data(request: Request):
   except Exception as e:
     SyncService.logger.error(e)
     raise HTTPException(status_code=400, detail=str(e))
-    
+  
+  
+
+
+@app.post("/receive", summary="Bypass Endpoint")
+async def receive_data(request: Request):
+    return {"status": "Data received successfully."}
+  
+
 
 @app.post("/update_product_webhook", summary="product update webhook endpoint")
 async def receive_data(request: Request):

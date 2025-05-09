@@ -1,5 +1,7 @@
 import asyncio
 
+from config import settings
+from shopify import Shopify
 from sync_service import SyncService
 service = SyncService()
 
@@ -3581,14 +3583,20 @@ order_webhook = {
         ],
         "returns": []
       }
+test_new_customer = {
+  'id': 8435227001056, 'email': 'awerxc@yahoo.com', 'created_at': '2025-05-09T05:18:41-04:00', 'updated_at': '2025-05-09T05:34:08-04:00', 'first_name': 'dtry', 'last_name': 'jk68d', 'state': 'disabled', 'note': None, 'verified_email': True, 'multipass_identifier': None, 'tax_exempt': False, 'phone': None, 'currency': 'PKR', 'tax_exemptions': [], 'admin_graphql_api_id': 'gid://shopify/Customer/8435227001056', 'default_address': {'id': 9546687611104, 'customer_id': 8435227001056, 'first_name': 'dtry', 'last_name': 'jk68d', 'company': 'fadf', 'address1': 'Dhamial Road', 'address2': '', 'city': 'Rawalpindi', 'province': None, 'country': 'Pakistan', 'zip': '', 'phone': '+923214862486', 'name': 'dtry jk68d', 'province_code': None, 'country_code': 'PK', 'country_name': 'Pakistan', 'default': True}}
+parent_shopify = Shopify(settings.parent_store, "Parent Shopify")
 
 
 if __name__ == "__main__":
     print("Test")
     # Product Sync Test
-    asyncio.run(
-      service.handle_product_update(new_product_webhook)
-    )
+    print(asyncio.run(
+      parent_shopify.make_new_customer(test_new_customer)
+    ))
+    # asyncio.run(
+    #   service.handle_product_update(new_product_webhook)
+    # )
     # asyncio.run(
     #   service.handle_product_update(product_update_webhook_multi_variant)
     # )

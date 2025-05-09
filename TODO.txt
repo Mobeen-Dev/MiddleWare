@@ -23,8 +23,11 @@ try-except block addition
 # Testing
 
 - Create new Customer in B2B - store
- - Place Order using it
-   - Place another other
+    - Only email
+    - Only Phone number
+    - With Both
+         - Place Order using it
+          - Place another other
 
 # Test Failures
  - with new customer    -failed
