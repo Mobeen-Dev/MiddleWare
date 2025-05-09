@@ -13,7 +13,29 @@ class Settings(BaseSettings):
     parent_shopify_api_secret: str = Field(alias="PARENT_SHOPIFY_API_SECRET")
     parent_shopify_store_name: str = Field(alias="PARENT_SHOPIFY_STORE_NAME")
     parent_shopify_api_version: str = Field(alias="PARENT_SHOPIFY_API_VERSION")
-
+    
+    # ── helper properties ────────────────────────────
+    
+    @property
+    def parent_store(self) -> dict[str, str]:
+        """Handy bundle for the *parent* shop."""
+        return {
+            "api_key": self.parent_shopify_api_key,
+            "api_secret": self.parent_shopify_api_secret,
+            "store_name": self.parent_shopify_store_name,
+            "api_version": self.parent_shopify_api_version,
+        }
+    
+    @property
+    def child_store(self) -> dict[str, str]:
+        """Handy bundle for the *child* shop."""
+        return {
+            "api_key":     self.child_shopify_api_key,
+            "api_secret":  self.child_shopify_api_secret,
+            "store_name":  self.child_shopify_store_name,
+            "api_version": self.child_shopify_api_version,
+        }
+    
     # === Shopify Child Store Credentials ===
     child_shopify_api_key: str = Field(alias="CHILD_SHOPIFY_API_KEY")
     child_shopify_api_secret: str = Field(alias="CHILD_SHOPIFY_API_SECRET")

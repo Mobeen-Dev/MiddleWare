@@ -7,7 +7,7 @@ from sync_service import SyncService
 SyncService = SyncService()
 app = FastAPI(
   title="Shopify Bridge API",
-  version="25.5.1",
+  version="25.5.9",
   description="Receives JSON payloads and provides retrieval endpoints."
 )
 data_store: List[Dict] = []

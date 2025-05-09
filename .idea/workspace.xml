@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="56b97a2f-5552-4d20-b0f4-a74e7acbd00d" name="Changes" comment="added product syncing pipeline">
-      <change afterPath="$PROJECT_DIR$/RnD/handle_order.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/logger.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shopify.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sync_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/configtesting.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/add_product_in_shopify.py" beforeDir="false" afterPath="$PROJECT_DIR$/RnD/add_product_in_shopify.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/add_record_in_DB.py" beforeDir="false" afterPath="$PROJECT_DIR$/RnD/parent_shopify_to_DB.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library.py" beforeDir="false" afterPath="$PROJECT_DIR$/RnD/library.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/RnD/logs_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/RnD/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manageProducts.py" beforeDir="false" afterPath="$PROJECT_DIR$/RnD/manageProducts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/RnD/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test3.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test3.py" afterDir="false" />
-    </list>
+    <list default="true" id="56b97a2f-5552-4d20-b0f4-a74e7acbd00d" name="Changes" comment="Valid Code before implementing workers" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -118,7 +99,7 @@
       <workItem from="1746020467303" duration="8435000" />
       <workItem from="1746030787083" duration="24586000" />
       <workItem from="1746185928284" duration="19143000" />
-      <workItem from="1746595472178" duration="4821000" />
+      <workItem from="1746595472178" duration="10584000" />
     </task>
     <task id="LOCAL-00001" summary="added product syncing pipeline">
       <option name="closed" value="true" />
@@ -128,7 +109,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745477248171</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Valid Code before implementing workers">
+      <option name="closed" value="true" />
+      <created>1746774958052</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746774958052</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -136,7 +125,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added product syncing pipeline" />
-    <option name="LAST_COMMIT_MESSAGE" value="added product syncing pipeline" />
+    <MESSAGE value="Valid Code before implementing workers" />
+    <option name="LAST_COMMIT_MESSAGE" value="Valid Code before implementing workers" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

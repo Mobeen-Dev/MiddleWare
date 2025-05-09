@@ -4,26 +4,25 @@ import aiohttp
 
 import os
 import time
-
-import aiohttp
 import asyncio
+import aiohttp
 import traceback
+from logger import get_logger
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from logger import get_logger
 
 class Shopify:
-  def __init__(self, shopify_store_name, access_token, api_version):
-    self.ACCESS_TOKEN = access_token
-    self.API_VERSION = api_version
-    self.SHOPIFY_STORE = shopify_store_name
+  def __init__(self, store:dict[str,str], logger_name:str="Shopify"):
+    self.ACCESS_TOKEN = store["api_secret"]
+    self.API_VERSION = store["api_version"]
+    self.SHOPIFY_STORE = store["store_name"]
     self.URL = f"https://{self.SHOPIFY_STORE}.myshopify.com/admin/api/{self.API_VERSION}/graphql.json"
     self.HEADER = {
       "Content-Type": "application/json",
       "X-Shopify-Access-Token": self.ACCESS_TOKEN
     }
     
-    self.logger = get_logger("Shopify.py")
+    self.logger = get_logger(logger_name)
     
 
   async def fetch_product_by_id(self, product_id: int):

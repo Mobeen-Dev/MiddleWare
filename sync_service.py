@@ -7,8 +7,8 @@ from config import settings
 
 class SyncService:
   def __init__(self):
-    self.parent_shopify = Shopify(settings.parent_shopify_store_name, settings.parent_shopify_api_secret, settings.parent_shopify_api_version)
-    self.child_shopify = Shopify(settings.child_shopify_store_name, settings.child_shopify_api_secret, settings.child_shopify_api_version)
+    self.parent_shopify = Shopify(settings.parent_store, "Parent Shopify")
+    self.child_shopify = Shopify(settings.child_store, "Child Shopify")
     self.db = DB_Client()
     self.logger = get_logger("SyncService")
     
@@ -44,8 +44,6 @@ class SyncService:
   async def handle_all_products_sync(self, product):
     # check which products are not present in db Add them
     pass
-  
-  
   
   async def handle_incoming_orders(self, orders):
     mutation = self.parent_shopify.draft_order_mutation()
