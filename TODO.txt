@@ -1,17 +1,56 @@
+Coding Work
+  Architectural Problem
+    Implements a Workers Pool
+
+  Deployment
+    Dockerize Project
+    Server Management
+    CI/CD
+
+
+  SyncProducts
+    createProduct
+        - get product from ParentShopify
+        - develop mutation & add in child Shopify
+        - handle error ( - call deleteProduct )
+        - add entries in DataBase
+        - add sales Channel in child Store product
+
+    removeProduct
+        - status -> Draft
+        - title += Deleted
+        - handle += current date & time
+        - remove entries from DB
+
+    updateProduct
+        - check is_valid for update & its discount %
+        - if no entry in DB
+            - just call createProduct
+        - verify variant_counts
+            -if not match from previous
+                - clear variants entries
+                - add variants entries from fetched Parent Shopify product
+                1st way
+                    - delete product
+                    - create new
+                2nd way
+                    - try to update the previous child Shopify product
+  SyncOrder
+    draft-order -> Actual Order
+
+UserInterface
+    - Enable/Disable Product Sync
+    - Discount % and base Price
+    - productOption to sync -> Price, Tags, Images, Description, Status
+    - reSync option for products
 
 
 
-Updating Product
-    repair product before - check is valid for update & its discount %
-    on update - when receive webhook call again fetch product from shopify instead of using webhook data
-    after update - check for all variants is there entry in database
 
 Sometimes - Cant handle new variant added
     if child_variant_count != parent_variant_count
         - delete & create new product
 
-develop Delete product
-develop Create product
 
 draft-order -> Actual Order
 
@@ -21,14 +60,14 @@ try-except block addition
 
 
 # Testing
+  OrderSyncVerification
 
-- Create new Customer in B2B - store
-    - Only email
-    - Only Phone number
-    - With Both
-         - Place Order using it
-          - Place another other
+    - Create new Customer in B2B - store
+      - Only email
+      - Only Phone number
+      - With Both
+        - Place Order using it
+        - Place another order
 
-# Test Failures
- - with new customer    -failed
- - without customer      -failed
+
+  ProductSyncVerification
