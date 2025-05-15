@@ -1,17 +1,41 @@
 from fastapi import FastAPI, Request, HTTPException
 from typing import List, Dict
 import uvicorn
-# We will implements workers here
+from tasks import *
+# We will implement workers here
+from contextlib import asynccontextmanager
+from taskiq_fastapi import init           # <- FastAPI plugin
+from broker import broker           # <- re-use broker
 from datetime import datetime
 from sync_service import SyncService
+from taskiq_fastapi import init as taskiq_init
+import taskiq_fastapi
+from logger import get_logger
 SyncService = SyncService()
+app_logger = get_logger("WebApp")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: connect the broker
+    await broker.startup()
+    yield
+    # Shutdown: close the broker connection
+    await broker.close()
+    
+    
 app = FastAPI(
   title="Shopify Bridge API",
   version="25.5.9",
-  description="Receives JSON payloads and provides retrieval endpoints."
+  description="Receives JSON payloads and provides retrieval endpoints.",
+  lifespan=lifespan,
 )
+
+# one-liner that lets Taskiq reuse FastAPI dependencies
+taskiq_init(broker, "app:app")
+
 data_store: List[Dict] = []
 
+    
 @app.get(
   "/health",
   summary="Health check",
@@ -20,17 +44,20 @@ data_store: List[Dict] = []
 async def health_check():
     return {"status": "ok"}
 
-
-@app.post("/order_webhook", summary="Order webhook endpoint")
-async def receive_data(request: Request):
+# ——— webhook endpoints ————————————————————————
+@app.post("/order_webhook", summary="Incoming Order Webhook Endpoint")
+async def order_webhook(request: Request):
   try:
-    json_data = await request.json()
-    await SyncService.handle_incoming_orders(json_data)
-    return {"status": "Data received successfully."}
+    payload = await request.json()
+    task = await process_order.kiq(payload)  # ← returns AsyncTaskiqTask
+    return {
+      "status": "queued",
+      "task_id": task.task_id
+    }
   except Exception as e:
-    SyncService.logger.error(e)
+    app_logger.error("order_webhook :: %s", e)
     raise HTTPException(status_code=400, detail=str(e))
-  
+
   
 
 
@@ -41,14 +68,24 @@ async def receive_data(request: Request):
 
 
 @app.post("/update_product_webhook", summary="product update webhook endpoint")
-async def receive_data(request: Request):
+async def update_product_webhook(request: Request):
   try:
-    json_data = await request.json()
-    await SyncService.handle_product_update(json_data)
-    return {"status": "Data received successfully."}
+    payload = await request.json()
+    task = await process_product_update.kiq(payload)
+    return {
+      "status": "queued",
+      "task_id": task.task_id
+    }
   except Exception as e:
-    SyncService.logger.error(e)
+    app_logger.error("update_product_webhook :: %s", e)
     raise HTTPException(status_code=400, detail=str(e))
+  # try:
+  #   json_data = await request.json()
+  #   await SyncService.handle_product_update(json_data)
+  #   return {"status": "Data received successfully."}
+  # except Exception as e:
+  #   SyncService.logger.error(e)
+  #   raise HTTPException(status_code=400, detail=str(e))
   
 
 @app.post("/delete_product_webhook", summary="product delete webhook endpoint")
@@ -61,7 +98,7 @@ async def receive_data(request: Request):
     return {"status": "Data received successfully."}
 
 
-@app.get("/ui", summary="product create webhook endpoint")
+@app.get("/ui", summary="FlutterFlow UI Endpoint")
 async def receive_data(request: Request):
     return {"status": "Data received successfully."}
 
@@ -69,7 +106,16 @@ async def receive_data(request: Request):
 @app.get("/display")
 @app.get("/")
 async def display_data():
-    return {"received_entries"}
+    return {"Working ...."}
+
+# ——— optional: task status endpoint ————————————————
+
+@app.get("/tasks/{task_id}")
+async def task_status(task_id: str):
+    # res = await taskiq.result_backend.get_result(task_id)
+    # if res:
+    #     return res.dict()         # {"status": "success", "return_value": …}
+    return {"state": "PENDING"}
 
 def main():
     uvicorn.run(

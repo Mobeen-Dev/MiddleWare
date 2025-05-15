@@ -1,4 +1,3 @@
-from logger import get_logger
 from shopify import  Shopify
 from database import DB_Client
 from logger import get_logger
@@ -27,7 +26,7 @@ class SyncService:
       id = id.split('/')[-1]
       self.logger.info(f"Product Updates :: parent {parent_pid} -> child {id} updated")
     else:
-      self.db.insert_parent_shopify_product_into_db(product_data)
+      await self.db.insert_parent_shopify_product_into_db(product_data)
       product = await self.child_shopify.create_product(parent_pid, product_data)
       print("child_shopify product created")
       print(product)
