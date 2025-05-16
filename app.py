@@ -2,24 +2,18 @@ from fastapi import FastAPI, Request, HTTPException
 from typing import List, Dict
 import uvicorn
 from tasks import *
-# We will implement workers here
 from contextlib import asynccontextmanager
-from taskiq_fastapi import init           # <- FastAPI plugin
-from broker import broker           # <- re-use broker
-from datetime import datetime
+from broker import broker
 from sync_service import SyncService
 from taskiq_fastapi import init as taskiq_init
-import taskiq_fastapi
 from logger import get_logger
 SyncService = SyncService()
 app_logger = get_logger("WebApp")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: connect the broker
     await broker.startup()
     yield
-    # Shutdown: close the broker connection
     await broker.close()
     
     
@@ -30,7 +24,7 @@ app = FastAPI(
   lifespan=lifespan,
 )
 
-# one-liner that lets Taskiq reuse FastAPI dependencies
+# Taskiq reuse FastAPI dependencies
 taskiq_init(broker, "app:app")
 
 data_store: List[Dict] = []

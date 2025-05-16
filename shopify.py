@@ -528,17 +528,21 @@ class Shopify:
       "first": 5,
       "after": None,
     }
-    filters = None
+
+    filters = ""
     mail = customer.get("email")
     phone = customer.get("phone")
     if mail:
-      filters = f"email:{mail}"
+      filters += f"email:{mail}"
     if phone:
-      filters += " OR "
+      if filters != "":
+        filters += " OR "
       filters += f"phone:{phone}"
+
     if phone_no:
-      filters += " OR "
-      filters += f"order. phone:{phone_no}"
+      if filters != "":
+        filters += " OR "
+      filters += f"phone:{phone_no}"
 
     variables["filter"] = filters
     

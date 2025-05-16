@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     # === Supabase Configuration ===
     supabase_url: str = Field(alias="SUPABASE_URL")
     supabase_key: str = Field(alias="SUPABASE_KEY")
+    
+    broker_url: str = Field(alias="BROKER_URL")
 
     # === Shopify Master Store Credentials ===
     parent_shopify_api_key: str = Field(alias="PARENT_SHOPIFY_API_KEY")
