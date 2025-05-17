@@ -16,8 +16,29 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy the rest of your source code
 COPY . .
 
+# make entrypoint.sh executable
+RUN chmod +x entrypoint.sh
+
 # Expose the FastAPI port
 EXPOSE 8000
 
-# Start your app (edit the module path if it’s not main.py ⇢ app variable)
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run FastApi server / Worker / Scheduler
+ENTRYPOINT ["./entrypoint.sh"]
+
+# # Install dependencies
+# RUN apt-get update && apt-get install -y wget unzip
+
+# # Install ngrok
+# RUN wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip \
+#     && unzip ngrok-v3-stable-linux-amd64.zip \
+#     && mv ngrok /usr/local/bin/ngrok \
+#     && rm ngrok-v3-stable-linux-amd64.zip
+
+
+
+
+
+# # Start your app (edit the module path if it’s not main.py ⇢ app variable)
+# CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
