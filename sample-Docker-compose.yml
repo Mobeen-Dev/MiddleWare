@@ -1,0 +1,43 @@
+version: "3.8"
+
+networks:
+  appnet:
+    driver: bridge
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: broker-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Development only
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - appnet
+
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: server:latest
+    container_name: fastapi_server
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    restart: on-failure
+    networks:
+      - appnet
+    environment:
+          AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"  # Development only
+
+
