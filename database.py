@@ -1,8 +1,4 @@
-# shopify_bridge/clients/supabase_client.py
 import asyncio
-from logging import Logger
-from warnings import catch_warnings
-
 from supabase import create_client, Client
 from config import settings
 from logger import get_logger

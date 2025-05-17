@@ -1,4 +1,3 @@
-from logger import get_logger
 from shopify import  Shopify
 from database import DB_Client
 from logger import get_logger
@@ -27,7 +26,7 @@ class SyncService:
       id = id.split('/')[-1]
       self.logger.info(f"Product Updates :: parent {parent_pid} -> child {id} updated")
     else:
-      self.db.insert_parent_shopify_product_into_db(product_data)
+      await self.db.insert_parent_shopify_product_into_db(product_data)
       product = await self.child_shopify.create_product(parent_pid, product_data)
       print("child_shopify product created")
       print(product)
@@ -51,7 +50,7 @@ class SyncService:
     response = await self.parent_shopify.send_graphql_mutation(mutation, variables, "Parent")
     id = response["data"]["draftOrderCreate"]["draftOrder"]["id"]
     id = id.split('/')[-1]
-    self.logger.info(f"Place Order {orders["id"]} -> {id}")
+    self.logger.info(f"Place Order :: parent {orders["id"]} -> child {id} updated ")
   
   async def parse_order_webhook(self, order_webhook: dict):
     customer = order_webhook["customer"]

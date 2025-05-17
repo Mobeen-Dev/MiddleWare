@@ -1,15 +1,8 @@
-import asyncio
-from logger import get_logger
-import aiohttp
-
 import os
-import time
 import asyncio
 import aiohttp
-import traceback
 from logger import get_logger
 from supabase import create_client, Client
-from dotenv import load_dotenv
 
 class Shopify:
   def __init__(self, store:dict[str,str], logger_name:str="Shopify"):
@@ -23,7 +16,6 @@ class Shopify:
     }
     
     self.logger = get_logger(logger_name)
-    
 
   async def fetch_product_by_id(self, product_id: int):
     product_gid = f"gid://shopify/Product/{product_id}"
@@ -203,8 +195,7 @@ class Shopify:
     except Exception as err:
       self.logger.exception(str(err))
       return {}
-  
-    
+   
   async def sync_product(self, p_id: int = 404, child_p_id: int = 404):
     product = await self.fetch_product_by_id(p_id)
     # print(product)
@@ -423,7 +414,7 @@ class Shopify:
     }
     # query_params = parse_response_to_query(product, "gid://shopify/Product/8872805433568") #Update
     result = await self.send_graphql_mutation(mutation, query_params)
-    self.logger.info(str(result))
+    # self.logger.info(str(result))
   
   async def update_product(self, child_pid, product_data):
     mutation = self.product_clone_update_mutation()
@@ -528,17 +519,21 @@ class Shopify:
       "first": 5,
       "after": None,
     }
-    filters = None
+
+    filters = ""
     mail = customer.get("email")
     phone = customer.get("phone")
     if mail:
-      filters = f"email:{mail}"
+      filters += f"email:{mail}"
     if phone:
-      filters += " OR "
+      if filters != "":
+        filters += " OR "
       filters += f"phone:{phone}"
+
     if phone_no:
-      filters += " OR "
-      filters += f"order. phone:{phone_no}"
+      if filters != "":
+        filters += " OR "
+      filters += f"phone:{phone_no}"
 
     variables["filter"] = filters
     
@@ -582,7 +577,6 @@ class Shopify:
       "provinceCode": shipping_address["province_code"],
       "zip": shipping_address["zip"],
     }
-  
   
   def draft_order_mutation(self):
     return """

@@ -1,12 +1,29 @@
 # shopify_bridge/config.py
 from pydantic_settings import BaseSettings
 from pydantic import Field
+import os
+
+import sys
+
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class Settings(BaseSettings):
     # === Supabase Configuration ===
     supabase_url: str = Field(alias="SUPABASE_URL")
     supabase_key: str = Field(alias="SUPABASE_KEY")
+    
+    # broker_url: str = os.environ["AMQP_URL"]
+    # broker_url: str= Field(alias="BROKER_URL")
+    amqp_url: str= Field(alias="AMQP_URL")
+
 
     # === Shopify Master Store Credentials ===
     parent_shopify_api_key: str = Field(alias="PARENT_SHOPIFY_API_KEY")
@@ -36,6 +53,8 @@ class Settings(BaseSettings):
             "api_version": self.child_shopify_api_version,
         }
     
+    
+    
     # === Shopify Child Store Credentials ===
     child_shopify_api_key: str = Field(alias="CHILD_SHOPIFY_API_KEY")
     child_shopify_api_secret: str = Field(alias="CHILD_SHOPIFY_API_SECRET")
@@ -48,7 +67,8 @@ class Settings(BaseSettings):
 
     class Config:
         # tell Pydantic to read a .env file from your project root
-        env_file = ".env"
+        env_file = ".env",
+        extra = "forbid"
         # you can also specify env_file_encoding = "utf-8" if needed
 
 
