@@ -9,6 +9,7 @@ from taskiq_fastapi import init as taskiq_init
 from logger import get_logger
 SyncService = SyncService()
 app_logger = get_logger("WebApp")
+from models import ProductSchema, OrderWebhook, ProductDeleteSchema
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,7 +45,7 @@ async def health_check():
 @app.post("/order_webhook", summary="Incoming Order Webhook Endpoint")
 async def order_webhook(request: Request):
   try:
-    payload = await request.json()
+    payload:OrderWebhook = await request.json()
     task = await process_order.kiq(payload)  # ← returns AsyncTaskiqTask
     return {
       "status": "queued",
@@ -66,7 +67,7 @@ async def receive_data(request: Request):
 @app.post("/update_product_webhook", summary="product update webhook endpoint")
 async def update_product_webhook(request: Request):
   try:
-    payload = await request.json()
+    payload:ProductSchema = await request.json()
     task = await process_product_update.kiq(payload)
     return {
       "status": "queued",
@@ -75,18 +76,21 @@ async def update_product_webhook(request: Request):
   except Exception as e:
     app_logger.error("update_product_webhook :: %s", e)
     raise HTTPException(status_code=400, detail=str(e))
-  # try:
-  #   json_data = await request.json()
-  #   await SyncService.handle_product_update(json_data)
-  #   return {"status": "Data received successfully."}
-  # except Exception as e:
-  #   SyncService.logger.error(e)
-  #   raise HTTPException(status_code=400, detail=str(e))
-  
+
 
 @app.post("/delete_product_webhook", summary="product delete webhook endpoint")
-async def receive_data(request: Request):
-    return {"status": "Data received successfully."}
+async def delete_product_webhook(request: Request):
+  try:
+    payload:ProductDeleteSchema = await request.json()
+    # task = await process_product_update.kiq(payload)
+    return {
+      "status": "queued",
+      # "task_id": task.task_id
+    }
+  except Exception as e:
+    app_logger.error("delete_product_webhook :: %s", e)
+    raise HTTPException(status_code=400, detail=str(e))
+  
 
 
 @app.post("/create_product_webhook", summary="product create webhook endpoint")
