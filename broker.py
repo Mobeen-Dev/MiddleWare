@@ -6,7 +6,7 @@ from config import settings
 
 # Message broker – RabbitMQ via AMQP
 broker = (
-    AioPikaBroker(settings.broker_url)
+    AioPikaBroker(settings.amqp_url)
     .with_middlewares(SimpleRetryMiddleware(default_retry_count=3))
 )
 

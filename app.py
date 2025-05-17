@@ -12,14 +12,16 @@ app_logger = get_logger("WebApp")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await broker.startup()
-    yield
-    await broker.close()
+  # Startup: establish connections
+  await broker.startup()
+  yield
+  # Shutdown: gracefully close connections
+  await broker.shutdown()
     
     
 app = FastAPI(
   title="Shopify Bridge API",
-  version="25.5.9",
+  version="25.5.16",
   description="Receives JSON payloads and provides retrieval endpoints.",
   lifespan=lifespan,
 )
@@ -116,7 +118,7 @@ def main():
         "app:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,         # only for development
+        reload=True,
         log_level="info"
     )
 
