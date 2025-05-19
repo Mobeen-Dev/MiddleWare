@@ -9,12 +9,9 @@ Coding Work
 
 
   SyncProducts
+
     createProduct
-        - get product from ParentShopify
-        - develop mutation & add in child Shopify
-        - handle error ( - call deleteProduct )
-        - add entries in DataBase
-        - add sales Channel in child Store product
+        - add Parent Shopify Product in DB         
 
     removeProduct
         - status -> Draft
@@ -23,9 +20,13 @@ Coding Work
         - remove entries from DB
 
     updateProduct
-        - check is_valid for update & its discount %
         - if no entry in DB
-            - just call createProduct
+            - just call createProduct 
+                - with settings according to ui
+        - check is_valid for update
+            fetch its discount % && variants count
+
+
         - verify variant_counts
             -if not match from previous
                 - clear variants entries
@@ -35,8 +36,23 @@ Coding Work
                     - create new
                 2nd way
                     - try to update the previous child Shopify product
+
+        - Sync
+          - get product from ParentShopify
+            -if child_id exist:              
+              - develop update product mutation & add in child Shopify 
+                - Align with UI defined Rules
+              - handle error ( - call deleteProduct ) 
+            -if child_id didnt exist: 
+              - develop create product mutation & add in child Shopify
+              - add entries in DataBase
+          - add sales Channel in ChildStore products
+
   SyncOrder
+    line_items not present in DB
     draft-order -> Actual Order
+
+  Collection & Products Group Create
 
 UserInterface
     - Enable/Disable Product Sync

@@ -14,24 +14,57 @@ class SyncService:
   def handle_product_create(self, product):
     self.db.add_new_product(product)
   
-  async def handle_product_update(self, product):
-    parent_pid = product['id']
+  async def handle_product_update(self, response):
+    parent_pid = response['id']
+    child_pid, sync_enable, variants_count_db =  self.db.verify_sync_product(parent_pid)
+    # print("\n\n Verify sync product output")
+    print("child_pid", child_pid, "sync_enable",sync_enable, "variants_count",variants_count_db)
+    
+    # Product is not in DB *NewProduct
+    if child_pid==404 and sync_enable==False :
+      product_data = await self.parent_shopify.fetch_product_by_id(parent_pid)
+      await self.db.insert_parent_shopify_product_into_db(product_data)
+      print("this is not present in our database")
+      #return self.handle_product_create(product)
+    if not sync_enable:
+      return
+    product_variants_count = len(response['variants'])
+    # print("product_variants", product_variants_count)
+    if variants_count_db != product_variants_count:
+      pass
+      # if not variants equl in db and in payload
+      #   new entry in db for new variants
+      #   delete previos shopify product add new
+      # try to update the child product with new product also enter new variants in database if not update delete and create new
+
+    #query to get validation discount and variant counts
+    # if not valid return
+    # if not present in db createproduct
+
+
     product_data = await self.parent_shopify.fetch_product_by_id(parent_pid)
-    print("product_data")
-    print(product_data)
-    child_pid = self.db.verify_sync_product(parent_pid)
+
+    # print("product_data")
+    # print(product_data)
+    
     if child_pid:
       response = await self.child_shopify.update_product(child_pid, product_data)
-      id = response["product"]["id"]
-      id = id.split('/')[-1]
-      self.logger.info(f"Product Updates :: parent {parent_pid} -> child {id} updated")
+      if response:
+        product_id = response["product"]["id"]
+        product_id = product_id.split('/')[-1]
+        self.logger.info(f"Product Updates :: parent {parent_pid} -> child {product_id} updated")
+      else:
+        self.logger.warning(f"Product Updates Not Successful :: parent {parent_pid}")
     else:
-      await self.db.insert_parent_shopify_product_into_db(product_data)
-      product = await self.child_shopify.create_product(parent_pid, product_data)
-      print("child_shopify product created")
-      print(product)
-      self.db.update_child_ids(parent_pid, product)
-      
+      # await self.db.insert_parent_shopify_product_into_db(product_data)
+      response = await self.child_shopify.create_product(parent_pid, product_data)
+      if response:
+        product_id = response["product"]["id"]
+        product_id = product_id.split('/')[-1]
+        self.db.update_child_ids(parent_pid, response)
+        self.logger.info(f"Product Created :: parent {parent_pid} -> child {product_id} updated")
+      else:
+        self.logger.warning(f"Product Creation Not Successful :: parent {parent_pid}")
   async def handle_product_delete(self, product):
     # query database to remove p_id and its associated vid
     pass

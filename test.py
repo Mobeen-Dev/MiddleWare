@@ -209,6 +209,65 @@ product_update_webhook_single_variant = {
           "full_name": "Uncategorized"
         }
       }
+new_product= {
+    "id": 7493753831510,
+    "title": "ordernumberinfinit",
+    "body_html": None,
+    "vendor": "Store mobeen pk",
+    "product_type": "",
+    "created_at": "2025-01-16T09:59:46+05:00",
+    "handle": "ordernumberinfinit",
+    "updated_at": "2025-05-01T13:45:32+05:00",
+    "published_at": None,
+    "template_suffix": None,
+    "published_scope": "web",
+    "tags": "",
+    "status": "active",
+    "admin_graphql_api_id": "gid://shopify/Product/7493753831510",
+    "variants": [
+      {
+        "id": 42052698177622,
+        "product_id": 7493753831510,
+        "title": "Default Title",
+        "price": "2000.00",
+        "position": 1,
+        "inventory_policy": "deny",
+        "compare_at_price": None,
+        "option1": "Default Title",
+        "option2": None,
+        "option3": None,
+        "created_at": "2025-01-16T09:59:46+05:00",
+        "updated_at": "2025-05-01T13:45:32+05:00",
+        "taxable": True,
+        "barcode": None,
+        "fulfillment_service": "manual",
+        "grams": 0,
+        "inventory_management": "shopify",
+        "requires_shipping": True,
+        "sku": "",
+        "weight": 0,
+        "weight_unit": "kg",
+        "inventory_item_id": 44166834126934,
+        "inventory_quantity": 814,
+        "old_inventory_quantity": 814,
+        "admin_graphql_api_id": "gid://shopify/ProductVariant/42052698177622",
+        "image_id": None
+      }
+    ],
+    "options": [
+      {
+        "id": 9632682344534,
+        "product_id": 7493753831510,
+        "name": "Title",
+        "position": 1,
+        "values": [
+          "Default Title"
+        ]
+      }
+    ],
+    "images": [],
+    "image": None
+  }
 product_update_webhook_multi_variant = {
         "admin_graphql_api_id": "gid://shopify/Product/7196017492054",
         "body_html": "\u003Cp\u003EThis is a packet of 100pcs  2 Watt 5% Resistor or quarter watt resistors. The \u003Cstrong\u003Eresistor \u003C/strong\u003Eis a very commonly used component in approximately every electronics circuit. Might be you need a resistor for LEDs, for op amp, for analog or digital circuit.\u003C/p\u003E\n\u003Cp data-sourcepos=\"5:1-5:36\"\u003E\u003Cstrong\u003EUnleash Your Electronics Potential in Pakistan:\u003C/strong\u003E\u003C/p\u003E\n\u003Cul data-sourcepos=\"7:1-7:118\"\u003E\n\u003Cli data-sourcepos=\"7:1-7:118\"\u003E\n\u003Cstrong\u003EBulk Pack (100pcs):\u003C/strong\u003E Always have the resistors you need for various electronics projects, saving money and time.\u003C/li\u003E\n\u003Cli data-sourcepos=\"8:1-8:160\"\u003E\n\u003Cstrong\u003E2W Power Rating:\u003C/strong\u003E Handle higher currents compared to standard 1/4W resistors, ideal for power circuits and applications with increased power requirements.\u003C/li\u003E\n\u003Cli data-sourcepos=\"9:1-9:108\"\u003E\n\u003Cstrong\u003E5% Tolerance:\u003C/strong\u003E Ensures reliable resistance values within a 5% margin for accurate circuit performance.\u003C/li\u003E\n\u003Cli data-sourcepos=\"10:1-10:93\"\u003E\n\u003Cstrong\u003ECompact &amp; Versatile:\u003C/strong\u003E Integrate seamlessly into breadboards and project enclosures.\u003C/li\u003E\n\u003Cli data-sourcepos=\"11:1-12:0\"\u003E\n\u003Cstrong\u003EEasy to Use:\u003C/strong\u003E Simple to incorporate into various electronic circuits.\u003C/li\u003E\n\u003C/ul\u003E\n\u003Cp\u003EPlease select a value as shown image in the blue marked area.\u003C/p\u003E\n\u003Cp\u003E\u003Cimg src=\"https://digilog.pk/cdn/shop/files/resistor-value.jpg\" data-original=\"https://hallroad.digilog.pk/images/thumbnails/443/443/detailed/22/resistor_value.JPG\" alt=\"1000 Pcs Of 1/4 Watt, Quarter Watt,0.25w 5% Resistor In\" loading=\"lazy\" width=\"411\" height=\"411\"\u003E\u003C/p\u003E\n\u003Ch2\u003EPackage Includes for  2 Watt 5% Resistor:\u003C/h2\u003E\n\u003Cul\u003E\n\u003Cli\u003EA packet of resistor which contains 1000pcs of 1/4w Resistor\u003Cspan style=\"font-size: 15.21px;\"\u003E.\u003C/span\u003E\n\u003C/li\u003E\n\u003C/ul\u003E\n\u003Cp\u003E\u003Cimg alt='Image result for resistor color code\"' src=\"https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSlrbLyKFBkgUmmT3Crs_-6mTeQsm5zxzkTRjj_wOb3Es3KrDOB\" width=\"418\" height=\"400\"\u003E\u003Cbr\u003E  \u003C/p\u003E",
@@ -3592,8 +3651,12 @@ if __name__ == "__main__":
     print("Test")
     # Product Sync Test
     print(asyncio.run(
-      parent_shopify.make_new_customer(test_new_customer)
-    ))
+       service.handle_product_update(new_product)
+      ))
+    
+    # print(asyncio.run(
+    #   parent_shopify.make_new_customer(test_new_customer)
+    # ))
     # asyncio.run(
     #   service.handle_product_update(new_product_webhook)
     # )

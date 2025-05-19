@@ -1,6 +1,9 @@
 import os
 import asyncio
 import aiohttp
+import re
+
+from RnD.old_library import send_graphql_mutation
 from logger import get_logger
 from supabase import create_client, Client
 
@@ -154,10 +157,32 @@ class Shopify:
       
     return data.get("data", {}).get("product")
   
+  async def product_id_by_handle(self, product_handle: str):
+    
+    query = self.product_query_by_identifier()
+    query_params = {
+      "identifier": {
+        "handle": f"{product_handle}"
+      }
+    }
+    result = await self.send_graphql_mutation(query, query_params, "product")
+    product = result.get("data", {}).get("product",{})
+    id = product.get("id", None)
+    
+    return id
+    # self.logger.info(str(result))
+  
+  async def delete_product_by_id(self, product_graphql_id: str):
+   
+    mutation = self.product_delete_mutation()
+    query_params = {
+      "id":product_graphql_id,
+    }
+    result = await self.send_graphql_mutation(mutation, query_params, "id")
+    # self.logger.info(str(result))
+  
   async def send_graphql_mutation(self, mutation: str, variables: dict, receiver: str = "child"):
-    print("Variables:")
-    print(variables)
-    print()
+
     try:
       async with aiohttp.ClientSession() as session:
         async with session.post(
@@ -176,18 +201,33 @@ class Shopify:
       if not data:
         raise RuntimeError(f"No 'data' field in response: {result}")
       if receiver == "child":
-        ps = data.get("productSet")
+        ps = data.get("productSet") or {}
         if ps is None:
+          pass
           # Could be completely null if the mutation itself wasn't found, or input invalid
-          raise RuntimeError(f"No 'productSet' returned in response: {result}")
+          # raise RuntimeError(f"No 'productSet' returned in response: {result}")
         
         # 4. Collect userErrors on the root and operation
         root_errors = ps.get("userErrors") or []
         op = ps.get("productSetOperation") or {}
         op_errors = op.get("userErrors") or []
         
-        if root_errors or op_errors:
-          raise RuntimeError(f"User errors: {root_errors + op_errors}")
+        if root_errors:
+          product_handle = ""
+          code = root_errors[0].get("code")
+
+          if code == 'HANDLE_NOT_UNIQUE':
+            msg = root_errors[0]['message']
+            match = re.search(r"Handle '([^']+)'", msg)
+            if match:
+              product_handle = match.group(1)
+              await self.handle_product_duplication(product_handle)
+              return await send_graphql_mutation(mutation, variables, receiver)
+              
+          
+        if op_errors:
+          pass
+          # raise RuntimeError(f"User errors: {op_errors}"
         
         # 5. Success — return the productSet payload
         return ps
@@ -195,14 +235,20 @@ class Shopify:
     except Exception as err:
       self.logger.exception(str(err))
       return {}
-   
+    
+  async def handle_product_duplication(self, product_handle:str):
+    product_id = await self.product_id_by_handle(product_handle)
+    if product_id:
+      await self.delete_product_by_id(product_id)
+      
+    
   async def sync_product(self, p_id: int = 404, child_p_id: int = 404):
     product = await self.fetch_product_by_id(p_id)
     # print(product)
     query_params = self.parse_into_query_params(product, f"gid://shopify/Product/{child_p_id}")
     # query_params = parse_response_to_query(product, "gid://shopify/Product/8872805433568") #Update
     mutation = self.product_clone_update_mutation(child_p_id != 404)
-    print(query_params)
+
     new_product = await self.send_graphql_mutation(mutation, query_params)
     return new_product
     # print(wow)
@@ -406,6 +452,26 @@ class Shopify:
     }
     """
   
+  def product_delete_mutation(self):
+    return """
+    mutation DeleteProduct($id: ID!) {
+      productDelete(input: {id: $id }) {
+        deletedProductId
+      }
+    }
+    """
+  
+  def product_query_by_identifier(self):
+    return """
+    query ($identifier: ProductIdentifierInput!) {
+      product: productByIdentifier(identifier: $identifier) {
+        id
+        handle
+        title
+      }
+    }
+    """
+  
   async def set_product_status(self, id: int = 404, status: str = "DRAFT"):
     mutation = self.product_update_mutation()
     query_params = {
@@ -475,8 +541,6 @@ class Shopify:
 
     try:
       data = await self.send_graphql_mutation(mutation, variables, "Parent")
-      print("Data")
-      print(data)
       new_customer = data["data"]["customerCreate"]["customer"]
       if new_customer:
         print("id ay gayi")

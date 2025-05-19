@@ -141,23 +141,38 @@ class DB_Client:
         self.logger.info(f"Batch inserted {len(variants)} variants, result={resp}")
     
     def verify_sync_product(self, id):
-        resp = (
-            self.client
-            .table("products")
-            .select("child_id")
-            .eq("id", id)
-            .execute()
-        )
-        
-        # if resp.error:
-        #   print(f"❌ Error: {resp.error.message}")
-        #   return 41219660382294, 4.04
         try:
-            row: dict = resp.data[0]
-            return row["child_id"]
+            resp = (
+                self.client
+                .table("products")
+                .select("child_id, sync_enable")
+                .eq("id", id)
+                .maybe_single()  # returns None if no row
+                .execute()
+            )
+            print(resp)
+            if not resp: # id is not present in DB
+                return 404, False , None
+            
+            child_id = resp.data["child_id"]
+            sync_enable = resp.data["sync_enable"]
+            
+            var_res = (
+                self.client
+                .table("variants")
+                .select("pid", head=True, count="exact")  # head=True → no rows, just headers & count
+                .eq("pid", id)
+                .execute()
+            )
+            if not var_res:
+                return child_id, sync_enable , 0
+        
+        
+            variant_count = var_res.count or 0
+            
+            return child_id, sync_enable, variant_count
         except Exception as e:
-            return None
-      
+            return None, None , None
     
     def update_child_ids(self, parent_pid, product):
         child_p_id = int(product["product"]["id"].split('/')[-1])
