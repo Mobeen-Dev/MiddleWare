@@ -3,6 +3,9 @@ Coding Work
     Implements a Workers Pool
 
   Deployment
+    Security
+      - DB RLS
+      - Server Ports Security
     Dockerize Project
       - Volumes for permanent logs
     Server Management

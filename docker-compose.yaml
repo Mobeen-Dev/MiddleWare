@@ -38,6 +38,6 @@ services:
     networks:
       - appnet
     environment:
-          AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"  # Development only
+          AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"   # Development only
 
 

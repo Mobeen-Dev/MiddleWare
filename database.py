@@ -81,6 +81,7 @@ class DB_Client:
 
     async def insert_parent_shopify_product_into_db(self, product):
         # Product Insertion
+        self.logger.info(f"Inserting parent shopify product into db {product}")
         full_product_id = product["id"]
         pid = full_product_id.split('/')[-1]
         pid = int(pid)
