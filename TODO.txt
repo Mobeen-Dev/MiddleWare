@@ -4,8 +4,11 @@ Coding Work
 
   Deployment
     Dockerize Project
+      - Volumes for permanent logs
     Server Management
+      - Health Measures
     CI/CD
+      - Jenkins
 
 
   SyncProducts
@@ -60,7 +63,8 @@ UserInterface
     - productOption to sync -> Price, Tags, Images, Description, Status
     - reSync option for products
 
-
+Implements UI Selection in Code
+  - Defaults while adding product
 
 
 Sometimes - Cant handle new variant added
@@ -68,7 +72,6 @@ Sometimes - Cant handle new variant added
         - delete & create new product
 
 
-draft-order -> Actual Order
 
 Async All functions
 try-except block addition
