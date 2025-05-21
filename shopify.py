@@ -140,22 +140,14 @@ class Shopify:
 
     """
     variables = {"id": product_gid}
-    payload = {"query": query, "variables": variables}
-    try:
-        timeout = aiohttp.ClientTimeout(total=5)
-        async with aiohttp.ClientSession(timeout=timeout) as session, \
-                   session.post(self.URL, headers=self.HEADER, json=payload) as resp:
-            resp.raise_for_status()
-            data = await resp.json()
-    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
-        self.logger.warning(f"fetch_product_by_id :: {e}")
-        return None
+    self.logger.info(f"Fetching product by id {product_gid}")
+    response = await self.send_graphql_mutation(query, variables, "product")
     
-    if errs := data.get("errors"):
+    if errs := response.get("errors"):
       self.logger.error(f"fetch_product_by_id::GraphQL errors: {errs}")  # optional
       return None
       
-    return data.get("data", {}).get("product")
+    return response.get("data", {}).get("product")
   
   async def product_id_by_handle(self, product_handle: str):
     

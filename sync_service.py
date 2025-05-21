@@ -23,8 +23,12 @@ class SyncService:
     # Product is not in DB *NewProduct
     if child_pid==404 and sync_enable==False :
       product_data = await self.parent_shopify.fetch_product_by_id(parent_pid)
-      await self.db.insert_parent_shopify_product_into_db(product_data)
+      if product_data:
+        await self.db.insert_parent_shopify_product_into_db(product_data)
+      
+
       print("this is not present in our database")
+      return
       #return self.handle_product_create(product)
     if not sync_enable:
       return
