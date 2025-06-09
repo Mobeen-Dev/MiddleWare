@@ -5,6 +5,7 @@ from tasks import *
 from fastapi.responses import FileResponse, Response
 import os
 from contextlib import asynccontextmanager
+from fastapi.templating import Jinja2Templates
 from broker import broker
 from sync_service import SyncService
 from taskiq_fastapi import init as taskiq_init
@@ -28,6 +29,8 @@ app = FastAPI(
   description="Receives JSON payloads and provides retrieval endpoints.",
   lifespan=lifespan,
 )
+
+templates = Jinja2Templates(directory="templates")
 
 # Taskiq reuse FastAPI dependencies
 taskiq_init(broker, "app:app")
@@ -107,8 +110,8 @@ async def receive_data(request: Request):
 
 @app.get("/display")
 @app.get("/")
-async def display_data():
-    return {"Working ...."}
+async def display_data(request: Request):
+  return templates.TemplateResponse("index.html", {"request": request})
 
 # Method 1: Direct file serving (recommended for large files)
 @app.get("/data-feed.csv")
