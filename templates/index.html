@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html class="js" lang="EN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>200: API is working — Shopify Developers</title>
+    <meta name="description" content="200: API is working - Your API connection is successful and ready to use.">
+    
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow: auto;
+        }
+
+        /* Header Styles */
+        .site-nav-container {
+            background: #0a0a0a;
+            border-bottom: 1px solid #2a2a2a;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 64px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffffff;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .logo {
+            height: 32px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00d4aa;
+            text-decoration: none;
+        }
+
+        .nav-center {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+                .logo-image {
+            height: 37px;
+            width: auto;
+            margin-right: 12px;
+        }
+
+        .nav-link:hover {
+            color: #00d4aa;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-button {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #a1a1a1;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .search-button:hover {
+            border-color: #00d4aa;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: #ffffff;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background: #1a1a1a;
+        }
+
+        .auth-button {
+            background: none;
+            border: 1px solid #2a2a2a;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .auth-button:hover {
+            border-color: #00d4aa;
+        }
+
+        .signup-button {
+            background: #00d4aa;
+            color: #0a0a0a;
+            border: none;
+            margin-left: 8px;
+        }
+
+        .signup-button:hover {
+            background: #00b894;
+            border-color: #00b894;
+        }
+
+        /* Main Content */
+        .page-container {
+            min-height: calc(100vh - 64px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 24px;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .status-heading {
+            font-family: 'Courier New', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #00d4aa;
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+
+        .status-message {
+            font-family: 'Courier New', monospace;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .status-description {
+            font-size: 1.125rem;
+            color: #a1a1a1;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .status-description a {
+            color: #00d4aa;
+            text-decoration: none;
+        }
+
+        .status-description a:hover {
+            text-decoration: underline;
+        }
+
+        .image-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .success-illustration {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .lottie-container {
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        dotlottie-player {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0a0a0a;
+            border-top: 1px solid #2a2a2a;
+            padding: 48px 24px 24px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+        }
+
+        .footer-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #a1a1a1;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: #00d4aa;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                gap: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-center {
+                display: none;
+            }
+
+            .nav-right .search-button span:not(:first-child) {
+                display: none;
+            }
+
+            .content-wrapper {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .text-content {
+                align-items: center;
+                order: 2;
+            }
+
+            .image-content {
+                order: 1;
+            }
+
+            .status-heading {
+                font-size: 3rem;
+            }
+
+            .status-message {
+                font-size: 2rem;
+            }
+
+            .success-illustration {
+                max-width: 300px;
+                height: 250px;
+            }
+
+            .lottie-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-wrapper {
+                padding: 0 16px;
+            }
+
+            .main-content {
+                padding: 40px 16px;
+            }
+
+            .status-heading {
+                font-size: 2.5rem;
+            }
+
+            .status-message {
+                font-size: 1.5rem;
+            }
+
+            .footer {
+                padding: 32px 16px 16px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Additional visual effects */
+        .status-heading {
+            text-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
+        }
+
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+            }
+        }
+
+        /* Focus styles for accessibility */
+        button:focus,
+        a:focus {
+            outline: 2px solid #00d4aa;
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 568px) {
+          .hide-on-mobile {
+            display: none;
+          }
+        }
+    </style>
+</head>
+<body class="page--errors-not-found shopify-sans-supported-lang ThemeMode-dark">
+    
+    <!-- Header -->
+    <header class="site-nav-container">
+        <nav class="nav-wrapper">
+            <div class="nav-left">
+                <button class="mobile-menu-btn" aria-label="Open navigation menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.667 5C4.298 5 4 5.224 4 5.5v1c0 .276.298.5.667.5h14.666c.369 0 .667-.224.667-.5v-1c0-.276-.299-.5-.667-.5H4.667zM4 11.5c0-.276.298-.5.667-.5h14.666c.369 0 .667.224.667.5v1c0 .276-.299.5-.667.5H4.667C4.298 13 4 12.776 4 12.5v-1zm0 6c0-.276.298-.5.667-.5h14.666c.369 0 .667.224.667.5v1c0 .276-.299.5-.667.5H4.667C4.298 19 4 18.776 4 18.5v-1z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <img src="https://digilogsoftwares.com/wp-content/uploads/2025/03/DLG-W.png" alt="Digilog Logo" class="logo-image">
+            </div>
+            
+            <ul class="nav-center">
+                <li><a href="#" class="nav-link">Apps</a></li>
+                <li><a href="#" class="nav-link">Storefronts</a></li>
+                <li><a href="#" class="nav-link">APIs and references</a></li>
+            </ul>
+            
+            <div class="nav-right">
+
+                <button class="theme-toggle" aria-label="View light mode">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11.384 5.913l-.6-3.261h-.001a.796.796 0 00-1.565 0l-.602 3.261a3.363 3.363 0 01-.885 1.743l-.039.036a3.36 3.36 0 01-1.78.924l-3.26.603a.796.796 0 000 1.564l3.26.601c.703.13 1.315.454 1.784.924.466.465.79 1.077.92 1.779l.603 3.261a.796.796 0 001.564 0l.601-3.261c.13-.7.456-1.311.924-1.783a3.355 3.355 0 011.78-.92l3.26-.601a.796.796 0 000-1.565l-3.26-.603a3.367 3.367 0 01-1.78-.923 3.365 3.365 0 01-.924-1.78z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <a href="#" class="auth-button hide-on-mobile">Log in</a>
+                <a href="#" class="auth-button signup-button hide-on-mobile">Sign up</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-container">
+        <main class="main-content" role="main" id="Main">
+            <div class="content-wrapper">
+                <div class="text-content">
+                    <h1 class="status-heading">200</h1>
+                    <h2 class="status-message">API is Healthy</h2>
+                    <p class="status-description">
+                        Your API connection is successful and ready to use. Check out our comprehensive 
+                        <a href="/docs">documentation</a> to start building amazing applications.
+                    </p>
+                </div>
+                
+                <div class="image-content">
+                    <div class="success-illustration">
+                        <div class="lottie-container">
+                            <dotlottie-player 
+                                src="https://lottie.host/39a2d67d-7942-426b-aeb6-fa8e44aec34b/JL4FfVr8kr.lottie" 
+                                background="transparent" 
+                                speed="1" 
+                                style="width: 300px; height: 300px" 
+                                loop 
+                                autoplay>
+                            </dotlottie-player>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Updates</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Developer changelog</a></li>
+                    <li><a href="#">Shopify Partners Slack</a></li>
+                    <li><a href="#">Shopify Editions</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Business growth</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Shopify Partners Program</a></li>
+                    <li><a href="#">Shopify App Store</a></li>
+                    <li><a href="#">Shopify Academy</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Terms of service</a></li>
+                    <li><a href="#">API terms of use</a></li>
+                    <li><a href="#">Privacy policy</a></li>
+                    <li><a href="#">Partners Program Agreement</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Shopify</h3>
+                <ul class="footer-links">
+                    <li><a href="#">About Shopify</a></li>
+                    <li><a href="#">Shopify Plus</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Investors</a></li>
+                    <li><a href="#">Press and media</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        document.querySelector('.theme-toggle').addEventListener('click', function() {
+            const body = document.body;
+            const isDark = body.style.backgroundColor === 'rgb(10, 10, 10)' || !body.style.backgroundColor;
+            
+            if (isDark) {
+                // Switch to light mode
+                document.documentElement.style.setProperty('--bg-color', '#ffffff');
+                document.documentElement.style.setProperty('--text-color', '#000000');
+                body.style.backgroundColor = '#ffffff';
+                body.style.color = '#000000';
+            } else {
+                // Switch to dark mode
+                document.documentElement.style.setProperty('--bg-color', '#0a0a0a');
+                document.documentElement.style.setProperty('--text-color', '#ffffff');
+                body.style.backgroundColor = '#0a0a0a';
+                body.style.color = '#ffffff';
+            }
+        });
+
+        // Search functionality
+        document.querySelector('.search-button').addEventListener('click', function() {
+            const searchTerm = prompt('Search documentation:');
+            if (searchTerm) {
+                alert(`Searching for: ${searchTerm}`);
+            }
+        });
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            const navCenter = document.querySelector('.nav-center');
+            if (navCenter.style.display === 'flex') {
+                navCenter.style.display = 'none';
+            } else {
+                navCenter.style.display = 'flex';
+                navCenter.style.flexDirection = 'column';
+                navCenter.style.position = 'absolute';
+                navCenter.style.top = '64px';
+                navCenter.style.left = '0';
+                navCenter.style.right = '0';
+                navCenter.style.background = '#0a0a0a';
+                navCenter.style.padding = '20px 24px';
+                navCenter.style.borderBottom = '1px solid #2a2a2a';
+                navCenter.style.zIndex = '999';
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Add some interactive elements
+        const lottieContainer = document.querySelector('.lottie-container');
+        if (lottieContainer) {
+            lottieContainer.addEventListener('click', function() {
+                const player = this.querySelector('dotlottie-player');
+                if (player) {
+                    player.seek(0);
+                    player.play();
+                }
+            });
+        }
+
+        // Keyboard navigation support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                document.querySelector('.search-button').click();
+            }
+        });
+    </script>
+</body>
+</html>

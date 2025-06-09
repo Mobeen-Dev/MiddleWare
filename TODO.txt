@@ -1,3 +1,7 @@
+Code CleanUp
+  - shopify.py -> send_graphql_mutation
+  - databse.py -> code review
+
 Coding Work
   Architectural Problem
     Implements a Workers Pool
