@@ -9,9 +9,6 @@ ENV PYTHONUNBUFFERED=1 \
 # Put everything under /app
 WORKDIR /app
 
-RUN mkdir -p /app/bucket
-RUN chmod -R 755 /app/bucket
-
 # Install dependencies first for better layer-caching
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
@@ -21,6 +18,8 @@ COPY . .
 
 # make entrypoint.sh executable
 RUN chmod +x entrypoint.sh
+# Set proper permissions for storage directories
+RUN chmod -R 755 /app/bucket
 
 # Expose the FastAPI port
 EXPOSE 8000
@@ -43,5 +42,3 @@ ENTRYPOINT ["./entrypoint.sh"]
 
 # # Start your app (edit the module path if it’s not main.py ⇢ app variable)
 # CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
-
-
