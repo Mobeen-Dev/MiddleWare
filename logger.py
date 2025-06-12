@@ -2,7 +2,7 @@ import logging
 from logging import Logger
 from config import resource_path
 
-LOG_FILE = resource_path("app.log")  # adjust path as needed
+LOG_FILE = resource_path("bucket/app.log")  # adjust path as needed
 
 def get_logger(name: str) -> Logger:
     """

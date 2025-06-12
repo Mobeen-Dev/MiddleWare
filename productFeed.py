@@ -2,10 +2,12 @@ from dataclasses import dataclass, field
 from typing import Optional, List
 from decimal import Decimal
 from datetime import datetime
+from logger import get_logger
 import csv
 import os
 from pathlib import Path
 
+logger = get_logger("ProductFeed")
 @dataclass
 class ProductFeed:
   """
@@ -69,6 +71,8 @@ class ProductFeed:
   custom_label_3: Optional[str] = None
   custom_label_4: Optional[str] = None
   
+
+  
   def __post_init__(self):
     """Validate required fields and formats after initialization."""
     self._validate_required_fields()
@@ -104,7 +108,7 @@ class ProductFeed:
       if value and len(value) > max_length:
         trimmed_value = value[:max_length]
         setattr(self, field_name, trimmed_value)
-        print(f"Warning: Field '{field_name}' was trimmed from {len(value)} to {max_length} characters")
+        logger.warning(f" Field '{field_name}' was trimmed from {len(value)} to {max_length} characters")
   
   def _validate_enums(self):
     """Validate enum values."""
@@ -144,8 +148,8 @@ class ProductFeed:
           if field_name in mappings and value_lower in mappings[field_name]:
             setattr(self, field_name, mappings[field_name][value_lower])
           else:
-            print(
-              f"Warning: Field '{field_name}' value '{value}' normalized to lowercase. Valid values: {', '.join(valid_values)}")
+            logger.warning(
+              f"Field '{field_name}' value '{value}' normalized to lowercase. Valid values: {', '.join(valid_values)}")
             # Set to lowercase anyway to avoid rejection
             setattr(self, field_name, value_lower)
   
@@ -233,7 +237,7 @@ class ProductFeedManager:
       for product in self.products:
         writer.writerow(product.to_csv_row(all_fields))
     
-    print(f"CSV file saved at: {full_path}")
+    logger.info(f"CSV file saved at: {full_path}")
     return full_path
   
   def get_products_by_brand(self, brand: str) -> List[ProductFeed]:
@@ -299,9 +303,4 @@ if __name__ == "__main__":
   # Export to CSV
   manager.export_to_csv("product_feed.csv")
   
-  print(f"Successfully created product feed with {len(manager)} products")
-  print(f"Products exported to product_feed.csv")
-  
-  # Access products
-  for product in manager:
-    print(f"SKU: {product.sku_id}, Title: {product.title}, Price: {product.price}")
+  logger.info(f"Successfully created product feed with {len(manager)} products")

@@ -126,7 +126,7 @@ while hasNextPage :
   # Pagintion Control
   pageInfo = result["pageInfo"]
   hasNextPage = pageInfo["hasNextPage"]
-  hasNextPage = False
+  # hasNextPage = False
   query_params['after'] = pageInfo["endCursor"]
   # Product Handling Logic
   products:list = result["nodes"]
@@ -189,4 +189,4 @@ while hasNextPage :
   
 # Export to CSV
 manager.export_to_csv("product_feed.csv", "bucket/")
-logger.info("Renewed DataFeed File")
+# logger.info("Re-New DataFeed File")
