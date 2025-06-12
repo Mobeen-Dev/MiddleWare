@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request, HTTPException
 from typing import List, Dict
 import uvicorn
 from tasks import *
+from fastapi.responses import FileResponse, Response
+import os
 from contextlib import asynccontextmanager
 from broker import broker
 from sync_service import SyncService
@@ -108,8 +110,27 @@ async def receive_data(request: Request):
 async def display_data():
     return {"Working ...."}
 
-# ——— optional: task status endpoint ————————————————
+# Method 1: Direct file serving (recommended for large files)
+@app.get("/data-feed.csv")
+async def serve_csv_file():
+  file_path = "bucket/product_feed.csv"
+  
+  # Check if file exists
+  if not os.path.exists(file_path):
+    raise HTTPException(status_code=404, detail="CSV file not found")
+  
+  # Return file directly
+  return FileResponse(
+    path=file_path,
+    media_type="text/csv",
+    filename="data-feed.csv",
+    headers={
+      "Access-Control-Allow-Origin": "*",
+      "Cache-Control": "no-cache"
+    }
+  )
 
+# ——— optional: task status endpoint ————————————————
 @app.get("/tasks/{task_id}")
 async def task_status(task_id: str):
     # res = await taskiq.result_backend.get_result(task_id)

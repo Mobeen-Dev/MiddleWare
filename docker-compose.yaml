@@ -34,6 +34,9 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
+    volumes:
+      # Mount persistent storage
+      - ./bucket:/app/bucket
     restart: on-failure
     networks:
       - appnet

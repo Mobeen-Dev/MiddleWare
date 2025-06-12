@@ -3,7 +3,6 @@ import asyncio
 import aiohttp
 import re
 
-from RnD.old_library import send_graphql_mutation
 from logger import get_logger
 from supabase import create_client, Client
 
@@ -214,7 +213,7 @@ class Shopify:
             if match:
               product_handle = match.group(1)
               await self.handle_product_duplication(product_handle)
-              return await send_graphql_mutation(mutation, variables, receiver)
+              return await self.send_graphql_mutation(mutation, variables, receiver)
               
           
         if op_errors:
@@ -232,7 +231,6 @@ class Shopify:
     product_id = await self.product_id_by_handle(product_handle)
     if product_id:
       await self.delete_product_by_id(product_id)
-      
     
   async def sync_product(self, p_id: int = 404, child_p_id: int = 404):
     product = await self.fetch_product_by_id(p_id)
@@ -645,3 +643,22 @@ class Shopify:
         }
       }
       """
+  
+  def extract_id_from_gid(self, gid: str) -> str:
+    """
+    Extract the ID from a Shopify GID string.
+
+    Args:
+        gid: Shopify GID string like 'gid://shopify/ProductVariant/40516000219222'
+
+    Returns:
+        The extracted ID as string: '40516000219222'
+
+    """
+    # Method 1: Using your suggested approach (reverse iteration)
+    for i in range(len(gid) - 1, -1, -1):
+      if gid[i] == '/':
+        return gid[i + 1:]
+    
+    # Fallback: if no '/' found, return the original string
+    return gid

@@ -9,6 +9,9 @@ ENV PYTHONUNBUFFERED=1 \
 # Put everything under /app
 WORKDIR /app
 
+RUN mkdir -p /app/bucket
+RUN chmod -R 755 /app/bucket
+
 # Install dependencies first for better layer-caching
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
