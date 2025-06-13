@@ -1,4 +1,8 @@
 import asyncio
+import time
+
+from exceptiongroup import catch
+
 from config import base_url, NO_IMAGE_URL, DISCONTINUED_KEYWORDS, REFURBISHED_KEYWORDS, USED_PRODUCT_KEYWORDS
 from database import DB_Client
 from logger import get_logger
@@ -13,7 +17,6 @@ logger = get_logger("DataFeed")
 enum_validations = {
   'availability': ["in stock", "available for order", "preorder", "out of stock", "discontinued"],
   'condition': ["new", "refurbished", "used"],
-  'age_group': ["newborn", "infant", "toddler", "kids", "adult"],
   'gender': ["male", "female", "unisex"]
 }
 
@@ -69,7 +72,7 @@ parent_shopify = Shopify(settings.parent_store, "DataFeed Shopify")
 
 query="""
   query GetProductsAndVariants($after: String) {
-    products(first: 250, after: $after) {
+    products(first: 249, after: $after) {
       nodes {
         category {
           fullName
@@ -121,8 +124,12 @@ query_params={
 
 hasNextPage = True
 while hasNextPage :
-  result = asyncio.run(parent_shopify.send_graphql_mutation(query, query_params, "GetProductsAndVariants"))
-  result = result['data']['products']
+  try:
+    result = asyncio.run(parent_shopify.send_graphql_mutation(query, query_params, "GetProductsAndVariants"))
+    result = result['data']['products']
+  except Exception as e:
+    time.sleep(3)
+    continue
   # Pagintion Control
   pageInfo = result["pageInfo"]
   hasNextPage = pageInfo["hasNextPage"]
@@ -132,60 +139,71 @@ while hasNextPage :
   products:list = result["nodes"]
   
   for product in products:
-    title = product["title"]
-    vendor = product["vendor"]
-    product_url = base_url+product["handle"]
-    description = product["description"]
-    description += "This is description Provided by Store Please visit store for Official Documentation and description of Product"
-    item_group_id = parent_shopify.extract_id_from_gid(product["id"])
-    product_image = product["images"].get('edges',[])
-    
-    additional_image_link = [url.get('node',{}).get('url',NO_IMAGE_URL) for url in product_image]
-    additional_image_link = ",".join(additional_image_link)
-    
-    if len(product_image) > 0:
-      product_image = product_image[0].get('node',{}).get('url',NO_IMAGE_URL)
-    else:
-      product_image = NO_IMAGE_URL
+    try:
+      title = product["title"]
+      vendor = product["vendor"]
+      product_url = base_url+product["handle"]
+      description = product["description"]
+      description += "This is description Provided by Store Please visit store for Official Documentation and description of Product"
+      item_group_id = parent_shopify.extract_id_from_gid(product["id"])
+      product_image = product.get("images",{})
+      if product_image:
+        product_image = product_image.get('edges',[])
+      
+      additional_image_link = [url.get('node',{}).get('url') for url in product_image]
+      if additional_image_link:
+        product_image = additional_image_link[0]
+        additional_image_link = ",".join(additional_image_link[1:])
+      else:
+        product_image = NO_IMAGE_URL
+        additional_image_link = ""
 
-    product_type = product.get("category", {})
-    if product_type:
-      product_type = product_type.get("fullName","")
-    else:
-      product_type = ""
-    variants = product["variants"]["nodes"]
+      
+  
+      product_type = product.get("category", {})
+      if product_type:
+        product_type = product_type.get("fullName","")
+      else:
+        product_type = ""
+      variants = product["variants"]["nodes"]
+    except Exception as e:
+      continue
     
     for variant in variants:
-      variant_title = format_title(title, variant)
-      sku_id = parent_shopify.extract_id_from_gid(variant["id"])
-      availability = availability_status(variant)
-      condition =  condition_status(variant)
-      price = format_price(variant)
-      v_image = variant["image"]
-      if v_image:
-        v_image = v_image.get('url',NO_IMAGE_URL)
-      else:
-        v_image = NO_IMAGE_URL
-      variant_url = product_url+f"?variant={sku_id}"
-      shipping_weight = format_weight(variant)
-      
-      product1 = ProductFeed(
-        sku_id=sku_id,
-        title=variant_title,
-        description=description,
-        availability=availability,
-        condition=condition,
-        price=price,
-        link=variant_url,
-        image_link=v_image,
-        brand=vendor,
-        item_group_id=item_group_id,
-        product_type=product_type,
-        google_product_category=product_type,
-        shipping_weight=shipping_weight,
-        additional_image_link=additional_image_link
-      )
-      manager.add_product(product1)
+      try:
+        variant_title = format_title(title, variant)
+        sku_id = parent_shopify.extract_id_from_gid(variant["id"])
+        availability = availability_status(variant)
+        condition =  condition_status(variant)
+        price = format_price(variant)
+        v_image = variant["image"]
+        if v_image:
+          v_image = v_image.get('url')
+          additional_image_link += f",{product_image}"
+        else:
+          v_image = product_image
+        variant_url = product_url+f"?variant={sku_id}"
+        shipping_weight = format_weight(variant)
+        
+        product1 = ProductFeed(
+          sku_id=sku_id,
+          title=variant_title,
+          description=description,
+          availability=availability,
+          condition=condition,
+          price=price,
+          link=variant_url,
+          image_link=v_image,
+          brand=vendor,
+          item_group_id=item_group_id,
+          product_type=product_type,
+          google_product_category=product_type,
+          shipping_weight=shipping_weight,
+          additional_image_link=additional_image_link
+        )
+        manager.add_product(product1)
+      except Exception as e:
+        continue
   
 # Export to CSV
 manager.export_to_csv("product_feed.csv", "bucket/")
