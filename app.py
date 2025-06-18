@@ -111,10 +111,10 @@ async def receive_data(request: Request):
 
 @app.get("/ui", summary="FlutterFlow UI Endpoint")
 async def receive_data(request: Request):
-    return {"status": "Data received successfully."}
+    return {"status": "Data received successfully. V2"}
 
 
-
+ 
 @app.get("/display")
 @app.get("/")
 async def display_data(request: Request):
