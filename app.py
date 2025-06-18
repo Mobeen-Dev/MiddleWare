@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException
 from typing import List, Dict
 import uvicorn
+from datetime import datetime
 from tasks import *
 from fastapi.responses import FileResponse, Response
 import os
@@ -107,6 +108,15 @@ async def receive_data(request: Request):
 async def receive_data(request: Request):
     return {"status": "Data received successfully."}
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment verification"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "fastapi-app",
+        "version": "1.0.0"
+    }
 
 @app.get("/display")
 @app.get("/")
