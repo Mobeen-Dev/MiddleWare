@@ -37,7 +37,6 @@ templates = Jinja2Templates(directory="templates")
 taskiq_init(broker, "app:app")
 
 data_store: List[Dict] = []
-
     
 @app.get(
   "/health",
@@ -45,7 +44,13 @@ data_store: List[Dict] = []
   description="Simple endpoint to verify the service is running."
 )
 async def health_check():
-    return {"status": "ok"}
+    """Health check endpoint for deployment verification"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "fastapi-app",
+        "version": "1.0.0"
+    }
 
 # ——— webhook endpoints ————————————————————————
 @app.post("/order_webhook", summary="Incoming Order Webhook Endpoint")
@@ -108,15 +113,7 @@ async def receive_data(request: Request):
 async def receive_data(request: Request):
     return {"status": "Data received successfully."}
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint for deployment verification"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "service": "fastapi-app",
-        "version": "1.0.0"
-    }
+
 
 @app.get("/display")
 @app.get("/")
