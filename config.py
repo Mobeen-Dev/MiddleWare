@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     amqp_url: str= Field(alias="AMQP_URL")
 
 
-    # === Shopify Master Store Credentials ===
+    # === Shopify Master Store credentials ===
     parent_shopify_api_key: str = Field(alias="PARENT_SHOPIFY_API_KEY")
     parent_shopify_api_secret: str = Field(alias="PARENT_SHOPIFY_API_SECRET")
     parent_shopify_store_name: str = Field(alias="PARENT_SHOPIFY_STORE_NAME")
@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     
     
     
-    # === Shopify Child Store Credentials ===
+    # === Shopify Child Store credentials ===
     child_shopify_api_key: str = Field(alias="CHILD_SHOPIFY_API_KEY")
     child_shopify_api_secret: str = Field(alias="CHILD_SHOPIFY_API_SECRET")
     child_shopify_store_name: str = Field(alias="CHILD_SHOPIFY_STORE_NAME")
@@ -67,7 +67,7 @@ class Settings(BaseSettings):
 
     class Config:
         # tell Pydantic to read a .env file from your project root
-        env_file = ".env",
+        env_file = "./credentials/.env",
         extra = "forbid"
         # you can also specify env_file_encoding = "utf-8" if needed
 
