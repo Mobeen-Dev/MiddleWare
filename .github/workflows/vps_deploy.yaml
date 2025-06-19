@@ -15,8 +15,9 @@ jobs:
       
     - name: 🛑 Stop Current Services
       run: |
-        echo "Stopping current services..."
-        docker-compose down || echo "No services running"
+        echo "Stopping project-specific services..."
+        docker stop broker-rabbitmq fastapi_server 2>/dev/null || echo "Containers not running"
+        docker rm broker-rabbitmq fastapi_server 2>/dev/null || echo "Containers not found"
         
     - name: 🧹 Clean Up Old Images (Optional)
       run: |
