@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
     
 app = FastAPI(
   title="Shopify Bridge API",
-  version="25.5.16",
+  version="25.6.19",
   description="Receives JSON payloads and provides retrieval endpoints.",
   lifespan=lifespan,
 )

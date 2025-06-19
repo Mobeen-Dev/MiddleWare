@@ -92,11 +92,13 @@ class DB_Client:
         
         # Insert images.
         all_images = []
-        images_edges = product.get("images", {}).get("edges", [])
+        images_edges = product.get("media", {}).get("edges", [])
         if images_edges:
             for edge in images_edges:
                 node = edge.get("node", {})
-                all_images.append(node.get("src", ''))
+                if node:
+                    url = node.get("image", {}).get("url", "")
+                    all_images.append(url)
         
         else:
             all_images = ["https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"]
@@ -130,7 +132,7 @@ class DB_Client:
                 "inv_quantity": node.get("inventoryQuantity", 0),
             })
             
-            # 2) run the single insert in a thread to avoid blocking
+        # 2) run the single insert in a thread to avoid blocking
         resp = await asyncio.to_thread(
             lambda: self.client
             .table("variants")
