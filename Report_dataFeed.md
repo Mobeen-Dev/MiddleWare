@@ -1,4 +1,4 @@
-# Product Feed Mapping Guide
+2# Product Feed Mapping Guide
 
 This document outlines the mapping strategy for product feed attributes, categorizing them into **Required Fields**, **Custom Logic Fields**, and **Ignored Fields**.
 

@@ -4,18 +4,21 @@ Code CleanUp
 
 Coding Work
   Architectural Problem
-    Implements a Workers Pool
+    Implements a Workers Pool : Done
 
   Deployment
     Security
       - DB RLS
-      - Server Ports Security
+      - Server Login Security
+      - Server Deep Security Analysis
+      - Server Ports Security :Done
     Dockerize Project
-      - Volumes for permanent logs
+      - Volumes for permanent logs :Done
     Server Management
-      - Health Measures
+      - Health Measures :Done
     CI/CD
-      - Jenkins
+      - Jenkins :Rejected
+      - Github Actions : Done
 
 
   SyncProducts
