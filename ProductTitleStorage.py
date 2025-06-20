@@ -45,6 +45,7 @@ class ProductTitleStorage:
 
     def get_all(self) -> List[str]:
         """Get all stored strings."""
+        self._strings: List[str] = self._load()
         return self._strings.copy()
 
     def count(self) -> int:
