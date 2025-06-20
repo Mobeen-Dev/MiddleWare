@@ -1,17 +1,15 @@
 import asyncio
 import time
 
-from exceptiongroup import catch
-
+from ProductTitleStorage import ProductTitleStorage
 from config import base_url, NO_IMAGE_URL, DISCONTINUED_KEYWORDS, REFURBISHED_KEYWORDS, USED_PRODUCT_KEYWORDS
-from database import DB_Client
 from logger import get_logger
 from config import settings
 from productFeed import ProductFeed, ProductFeedManager
 from shopify import Shopify
-from test import parent_shopify
 
 manager = ProductFeedManager()
+title_manager = ProductTitleStorage()
 logger = get_logger("DataFeed")
 
 enum_validations = {
@@ -202,9 +200,11 @@ while hasNextPage :
           additional_image_link=additional_image_link
         )
         manager.add_product(product1)
+        title_manager.add_item(title)
       except Exception as e:
         continue
   
 # Export to CSV
 manager.export_to_csv("product_feed.csv", "bucket/")
+title_manager.save()
 # logger.info("Re-New DataFeed File")

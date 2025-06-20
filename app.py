@@ -2,16 +2,19 @@ from fastapi import FastAPI, Request, HTTPException
 from typing import List, Dict
 import uvicorn
 from datetime import datetime
+
+from ProductTitleStorage import ProductTitleStorage
 from tasks import *
 from fastapi.responses import FileResponse, Response
 import os
 from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from broker import broker
-from sync_service import SyncService
 from taskiq_fastapi import init as taskiq_init
 from logger import get_logger
-SyncService = SyncService()
+
+manager = ProductTitleStorage()
 app_logger = get_logger("WebApp")
 from models import ProductSchema, OrderWebhook, ProductDeleteSchema
 
@@ -29,6 +32,22 @@ app = FastAPI(
   version="25.6.19",
   description="Receives JSON payloads and provides retrieval endpoints.",
   lifespan=lifespan,
+)
+
+wow=    [
+        "https://b2b-control-panel.flutterflow.app",  # Production frontend
+        "https://www.flutterflow.app",
+        "https://app.flutterflow.io/",
+        "https://www.flutterflow.io/"
+    ],
+
+
+app.add_middleware(
+    CORSMiddleware,               # type: ignore
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"], #
+    allow_headers=["*"],
 )
 
 templates = Jinja2Templates(directory="templates")
@@ -111,14 +130,17 @@ async def receive_data(request: Request):
 
 @app.get("/ui", summary="FlutterFlow UI Endpoint")
 async def receive_data(request: Request):
-    return {"status": "Data received successfully. V2"}
+  print(manager.count())
+  print(manager.get_all())
+  return {
+    "count": manager.count(),
+    "titles": manager.get_all()
+  }
 
 
  
-@app.get("/display")
-@app.get("/")
-async def display_data(request: Request):
-  return templates.TemplateResponse("index.html", {"request": request})
+
+
 
 @app.get("/data-feed.csv")
 async def serve_csv_file():
@@ -140,8 +162,10 @@ async def serve_csv_file():
         }
     )
 
-
-
+@app.get("/display")
+@app.get("/")
+async def display_data(request: Request):
+  return templates.TemplateResponse("index.html", {"request": request})
 
 # ——— optional: task status endpoint ————————————————
 @app.get("/tasks/{task_id}")
