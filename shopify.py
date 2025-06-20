@@ -231,15 +231,23 @@ class Shopify:
     product_id = await self.product_id_by_handle(product_handle)
     if product_id:
       await self.delete_product_by_id(product_id)
-    
+      
+  @staticmethod
+  def update_params(query_params):
+    variants = query_params.get("input", {}).get("variants", [])
+    for variant in variants:
+      del variant['title']
+
+    return query_params
   async def sync_product(self, p_id: int = 404, child_p_id: int = 404):
     product = await self.fetch_product_by_id(p_id)
     # print(product)
     query_params = self.parse_into_query_params(product, f"gid://shopify/Product/{child_p_id}")
+    updated_query_params = self.update_params(query_params)
     # query_params = parse_response_to_query(product, "gid://shopify/Product/8872805433568") #Update
     mutation = self.product_clone_update_mutation(child_p_id != 404)
 
-    new_product = await self.send_graphql_mutation(mutation, query_params)
+    new_product = await self.send_graphql_mutation(mutation, updated_query_params)
     return new_product
     # print(wow)
   
@@ -311,7 +319,7 @@ class Shopify:
         "variants": [
           {
             "optionValues": handle_variants(variant["node"]["title"]),
-            
+            "title": variant["node"]["title"],
             "sku": variant["node"]["sku"],
             "price": variant["node"]["price"],
             "compareAtPrice": variant["node"]["compareAtPrice"],
@@ -472,15 +480,14 @@ class Shopify:
     result = await self.send_graphql_mutation(mutation, query_params)
     # self.logger.info(str(result))
   
-  async def update_product(self, child_pid, product_data):
+  async def update_product(self, query_params):
     mutation = self.product_clone_update_mutation()
-    query_params = self.parse_into_query_params(product_data, f"gid://shopify/Product/{child_pid}")
-    new_product = await self.send_graphql_mutation(mutation, query_params)
-    return new_product
+    # query_params = self.parse_into_query_params(product_data, f"gid://shopify/Product/{child_pid}")
+    updated_product = await self.send_graphql_mutation(mutation, query_params)
+    return updated_product
   
-  async def create_product(self, parent_pid, product_data):
+  async def create_product(self, query_params):
     mutation = self.product_clone_update_mutation(False) # False for creating Product
-    query_params = self.parse_into_query_params(product_data)
     new_product = await self.send_graphql_mutation(mutation, query_params)
     return new_product
   

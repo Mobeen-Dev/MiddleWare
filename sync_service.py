@@ -50,9 +50,12 @@ class SyncService:
 
     # print("product_data")
     # print(product_data)
-    
+    price_list = self.db.fetch_variants_by_pid(parent_pid) # All the variants pricing data
     if child_pid:
-      response = await self.child_shopify.update_product(child_pid, product_data)
+      query_params = self.child_shopify.parse_into_query_params(product_data, f"gid://shopify/Product/{child_pid}")
+      # print(query_params)
+      query_params = self.update_params(query_params, price_list)
+      response = await self.child_shopify.update_product(query_params)
       if response:
         product_id = response["product"]["id"]
         product_id = product_id.split('/')[-1]
@@ -61,7 +64,9 @@ class SyncService:
         self.logger.warning(f"Product Updates Not Successful :: parent {parent_pid}")
     else:
       # await self.db.insert_parent_shopify_product_into_db(product_data)
-      response = await self.child_shopify.create_product(parent_pid, product_data)
+      query_params = self.child_shopify.parse_into_query_params(product_data)
+      query_params = self.update_params(query_params, price_list)
+      response = await self.child_shopify.create_product(query_params)
       if response:
         product_id = response["product"]["id"]
         product_id = product_id.split('/')[-1]
@@ -72,6 +77,31 @@ class SyncService:
   async def handle_product_delete(self, product):
     # query database to remove p_id and its associated vid
     pass
+  
+  @staticmethod
+  def calculate_price(price_list):
+    for record in price_list:
+      if record['b2b_prcnt']:
+        record['b2b_price']=record['b2b_discount']*record['retail_price']/100
+    return price_list
+  @staticmethod
+  def apply_price_on_params(query_params, price_list):
+    variants = query_params.get("input", {}).get("variants", [])
+    for variant in variants:
+      for record in price_list:
+        if record['title'] == variant['title']:
+          variant['price'] = record['b2b_price']
+    return variants
+  def update_params(self, query_params, price_list):
+    price_list = self.calculate_price(price_list)
+    updated_variants = self.apply_price_on_params(query_params, price_list)
+    
+    # Remove Extra Keys from Params
+    for variant in updated_variants:
+      del variant['title']
+    # Update Params
+    query_params["input"]["variants"] = updated_variants
+    return query_params
 
   async def handle_product_re_sync(self, product):
     # delete the previous product create a new product
@@ -141,3 +171,4 @@ class SyncService:
         "quantity": qty,
       })
     return updated_line_items, total_bill
+  

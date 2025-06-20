@@ -10,6 +10,8 @@ class DB_Client:
             settings.supabase_url, settings.supabase_key
         )
         self.logger = get_logger("SupabaseClient")
+        self.variant_table = "variants"
+        self.product_table = "products"
 
     def upsert(
         self,
@@ -81,7 +83,7 @@ class DB_Client:
 
     async def insert_parent_shopify_product_into_db(self, product):
         # Product Insertion
-        self.logger.info(f"Inserting parent shopify product into db {product}")
+        self.logger.info(f"Inserting parent shopify product into db {product.id}")
         full_product_id = product["id"]
         pid = full_product_id.split('/')[-1]
         pid = int(pid)
@@ -113,7 +115,7 @@ class DB_Client:
             "inv_quantity": 404,
             "sync_enable":True
         }
-        prod_response = self.client.table("products").insert(new_product).execute()
+        prod_response = self.client.table(self.product_table).insert(new_product).execute()
         self.logger.info(f"Inserted product: {prod_response} ")
 
         # Variants Insertion
@@ -136,7 +138,7 @@ class DB_Client:
         # 2) run the single insert in a thread to avoid blocking
         resp = await asyncio.to_thread(
             lambda: self.client
-            .table("variants")
+            .table(self.variant_table)
             .insert(variants)
             .execute()
         )
@@ -147,7 +149,7 @@ class DB_Client:
         try:
             resp = (
                 self.client
-                .table("products")
+                .table(self.product_table)
                 .select("child_id, sync_enable")
                 .eq("id", id)
                 .maybe_single()  # returns None if no row
@@ -162,7 +164,7 @@ class DB_Client:
             
             var_res = (
                 self.client
-                .table("variants")
+                .table(self.variant_table)
                 .select("pid", head=True, count="exact")  # head=True → no rows, just headers & count
                 .eq("pid", id)
                 .execute()
@@ -180,7 +182,7 @@ class DB_Client:
     def update_child_ids(self, parent_pid, product):
         child_p_id = int(product["product"]["id"].split('/')[-1])
         response = (
-            self.client.table("products")
+            self.client.table(self.product_table)
             .update({"child_id": child_p_id})
             .eq("id", parent_pid)
             .execute()
@@ -192,7 +194,7 @@ class DB_Client:
             variant_vid = int(variant_vid.split('/')[-1])
             variant_title = variant["title"]
             response = (
-                self.client.table("variants")
+                self.client.table(self.variant_table)
                 .update({"child_vid": variant_vid})
                 .eq("pid", parent_pid)
                 .eq("title", variant_title)
@@ -202,7 +204,7 @@ class DB_Client:
     async def update_product_status(self, child_p_id: int, status: bool = False) -> None:
         # 3. Offload the blocking update to a thread
         response = await asyncio.to_thread(
-            lambda: self.client.table("products")
+            lambda: self.client.table(self.product_table)
             .update({"isActive": status})
             .eq("child_id", child_p_id)
             .execute()
@@ -219,7 +221,7 @@ class DB_Client:
         # 1) Do one big query
         resp = (
             self.client
-            .table("variants")
+            .table(self.variant_table)
             .select("child_vid, vid, retail_price")
             .in_("child_vid", child_ids)
             .execute()
@@ -240,7 +242,7 @@ class DB_Client:
     def fetch_parent_variant_id(self, id):
         resp = (
             self.client
-            .table("variants")
+            .table(self.variant_table)
             .select("*")
             .eq("child_vid", int(id))
             .execute()
@@ -253,3 +255,64 @@ class DB_Client:
         
         row: dict = resp.data[0]
         return row["vid"], row["retail_price"]
+    
+    def fetch_variants_by_pid(self, pid: int) -> list[dict]:
+        """
+        Fetch all variant records for a given product ID with specific pricing columns.
+
+        :param pid: Product ID to filter variants
+        :returns: List of variant records with b2b_price, b2b_discount, b2b_prcnt, retail_price
+        """
+        try:
+            response = (
+                self.client
+                .table(self.variant_table)
+                .select("title, b2b_price, b2b_discount, b2b_prcnt, retail_price")
+                .eq("pid", pid)
+                .execute()
+            )
+            
+            if not response:
+                return []
+            
+            self.logger.info("Fetched %d variants for pid %s", len(response.data), pid)
+            return response.data
+        
+        except Exception as e:
+            self.logger.error("Exception while fetching variants for pid %s: %s", pid, str(e))
+            raise
+    
+    def update_multiple_product_images(self, objects: list[dict]) -> None:
+        """
+        Bulk update 'images' column for multiple products in the n_products table.
+
+        :param objects: List of dicts, each with keys:
+            - 'id': product ID
+            - 'data': list of image URLs to overwrite in 'images' column
+        """
+        try:
+            # Collect update tasks
+            updates = []
+            for obj in objects:
+                updates.append(
+                    self.client
+                    .table("products")
+                    .update({"images": obj["data"]})
+                    .eq("id", obj["id"])
+                    .execute()
+                )
+            
+            # Evaluate responses
+            for idx, response in enumerate(updates):
+                obj_id = objects[idx]["id"]
+                if hasattr(response, "status_code") and response.status_code == 200:
+                    self.logger.info("Updated images for product ID %s", obj_id)
+                elif hasattr(response, "data") and response.data:
+                    self.logger.info("Updated images for product ID %s", obj_id)
+                else:
+                    self.logger.warning("Failed to update product ID %s: %s", obj_id, response)
+        
+        except Exception as e:
+            self.logger.error("Exception during bulk image update: %s", str(e))
+            raise
+

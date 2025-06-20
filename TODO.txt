@@ -23,6 +23,8 @@ Coding Work
 
   SyncProducts
 
+    inventoryQuantities in shopify must be dynamic
+
     createProduct
         - add Parent Shopify Product in DB         
 

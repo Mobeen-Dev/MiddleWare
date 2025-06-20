@@ -2246,6 +2246,448 @@ product_update_webhook_multi_variant = {
           "full_name": "Uncategorized"
         }
       }
+new_product_multivariant={
+  "admin_graphql_api_id": "gid://shopify/Product/7576191696982",
+  "body_html": "\u003Cp\u003EThis is a packet of 100pcs  2 Watt 5% Resistor or quarter watt resistors. The \u003Cstrong\u003Eresistor \u003C/strong\u003Eis a very commonly used component in approximately every electronics circuit. Might be you need a resistor for LEDs, for op amp, for analog or digital circuit.\u003C/p\u003E\n\u003Cp data-sourcepos=\"5:1-5:36\"\u003E\u003Cstrong\u003EUnleash Your Electronics Potential in Pakistan:  not add\u003C/strong\u003E\u003C/p\u003E\n\u003Cul data-sourcepos=\"7:1-7:118\"\u003E\n\u003Cli data-sourcepos=\"7:1-7:118\"\u003E\n\u003Cstrong\u003EBulk Pack (100pcs):\u003C/strong\u003E Always have the resistors you need for various electronics projects, saving money and time.\u003C/li\u003E\n\u003Cli data-sourcepos=\"8:1-8:160\"\u003E\n\u003Cstrong\u003E2W Power Rating:\u003C/strong\u003E Handle higher currents compared to standard 1/4W resistors, ideal for power circuits and applications with increased power requirements.\u003C/li\u003E\n\u003Cli data-sourcepos=\"9:1-9:108\"\u003E\n\u003Cstrong\u003E5% Tolerance:\u003C/strong\u003E Ensures reliable resistance values within a 5% margin for accurate circuit performance.\u003C/li\u003E\n\u003Cli data-sourcepos=\"10:1-10:93\"\u003E\n\u003Cstrong\u003ECompact &amp; Versatile:\u003C/strong\u003E Integrate seamlessly into breadboards and project enclosures.\u003C/li\u003E\n\u003Cli data-sourcepos=\"11:1-12:0\"\u003E\n\u003Cstrong\u003EEasy to Use:\u003C/strong\u003E Simple to incorporate into various electronic circuits.\u003C/li\u003E\n\u003C/ul\u003E\n\u003Cp\u003EPlease select a value as shown image in the blue marked area.\u003C/p\u003E\n\u003Cp\u003E\u003Cimg src=\"https://digilog.pk/cdn/shop/files/resistor-value.jpg\" data-original=\"https://hallroad.digilog.pk/images/thumbnails/443/443/detailed/22/resistor_value.JPG\" alt=\"1000 Pcs Of 1/4 Watt, Quarter Watt,0.25w 5% Resistor In\" loading=\"lazy\" width=\"411\" height=\"411\"\u003E\u003C/p\u003E\n\u003Ch2\u003EPackage Includes for  2 Watt 5% Resistor:\u003C/h2\u003E\n\u003Cul\u003E\n\u003Cli\u003EA packet of resistor which contains 1000pcs of 1/4w Resistor\u003Cspan style=\"font-size: 15.21px;\"\u003E.\u003C/span\u003E\n\u003C/li\u003E\n\u003C/ul\u003E\n\u003Cp\u003E\u003Cimg alt='Image result for resistor color code\"' src=\"https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSlrbLyKFBkgUmmT3Crs_-6mTeQsm5zxzkTRjj_wOb3Es3KrDOB\" width=\"418\" height=\"400\"\u003E\u003Cbr\u003E  \u003C/p\u003E",
+  "created_at": "2025-06-19T14:17:23+05:00",
+  "handle": "100pcs-2-watt-5-resistor-in-pakistan-copy",
+  "id": 7576191696982,
+  "product_type": "",
+  "published_at": None,
+  "template_suffix": None,
+  "title": "100pcs 2 Watt 5% Resistor In Pakistan (Copy)",
+  "updated_at": "2025-06-19T14:23:35+05:00",
+  "vendor": "Digilog Electronics",
+  "status": "draft",
+  "published_scope": "web",
+  "tags": "10K, 1k, 1M Ohm Volum Resistor, 330r, 4.7k, 470r, aaaa, quarter watt, resistance, resistor",
+  "variants": [
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067566678",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394067566678,
+    "inventory_policy": "continue",
+    "position": 1,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "1R---B2 / Yellow",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "1R---B2",
+    "option2": "Yellow",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036333654,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067632214",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394067632214,
+    "inventory_policy": "continue",
+    "position": 2,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "1R---B2 / Red",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "1R---B2",
+    "option2": "Red",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036399190,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067697750",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394067697750,
+    "inventory_policy": "continue",
+    "position": 3,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "1.5R---B2 / Yellow",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "1.5R---B2",
+    "option2": "Yellow",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036464726,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067763286",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394067763286,
+    "inventory_policy": "continue",
+    "position": 4,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "1.5R---B2 / Red",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "1.5R---B2",
+    "option2": "Red",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036530262,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067828822",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394067828822,
+    "inventory_policy": "continue",
+    "position": 5,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "2.2R---B3 / Yellow",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "2.2R---B3",
+    "option2": "Yellow",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036595798,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067894358",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394067894358,
+    "inventory_policy": "continue",
+    "position": 6,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "2.2R---B3 / Red",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "2.2R---B3",
+    "option2": "Red",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036661334,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067959894",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394067959894,
+    "inventory_policy": "continue",
+    "position": 7,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "2.7R---B4 / Yellow",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "2.7R---B4",
+    "option2": "Yellow",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036726870,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068025430",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394068025430,
+    "inventory_policy": "continue",
+    "position": 8,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "2.7R---B4 / Red",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "2.7R---B4",
+    "option2": "Red",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036792406,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068090966",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394068090966,
+    "inventory_policy": "continue",
+    "position": 9,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "3.3R---B5 / Yellow",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "3.3R---B5",
+    "option2": "Yellow",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036857942,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068156502",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394068156502,
+    "inventory_policy": "continue",
+    "position": 10,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "3.3R---B5 / Red",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "3.3R---B5",
+    "option2": "Red",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036923478,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068222038",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394068222038,
+    "inventory_policy": "continue",
+    "position": 11,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "3.9R---B6 / Yellow",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "3.9R---B6",
+    "option2": "Yellow",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508036989014,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068287574",
+    "barcode": "",
+    "compare_at_price": None,
+    "created_at": "2025-06-19T14:18:38+05:00",
+    "id": 42394068287574,
+    "inventory_policy": "continue",
+    "position": 12,
+    "price": "550.00",
+    "product_id": 7576191696982,
+    "sku": None,
+    "taxable": True,
+    "title": "3.9R---B6 / Red",
+    "updated_at": "2025-06-19T14:18:38+05:00",
+    "option1": "3.9R---B6",
+    "option2": "Red",
+    "option3": None,
+    "image_id": None,
+    "inventory_item_id": 44508037054550,
+    "inventory_quantity": 0,
+    "old_inventory_quantity": 0
+  }],
+  "options": [
+  {
+    "name": "Resistance",
+    "id": 9733409407062,
+    "product_id": 7576191696982,
+    "position": 1,
+    "values": [
+      "1R---B2",
+      "1.5R---B2",
+      "2.2R---B3",
+      "2.7R---B4",
+      "3.3R---B5",
+      "3.9R---B6"
+    ]
+  },
+  {
+    "name": "Color",
+    "id": 9733409439830,
+    "product_id": 7576191696982,
+    "position": 2,
+    "values": [
+      "Yellow",
+      "Red"
+    ]
+  }],
+  "images": [
+  {
+    "id": 33844286619734,
+    "product_id": 7576191696982,
+    "position": 1,
+    "created_at": "2024-12-24T17:54:03+05:00",
+    "updated_at": "2024-12-24T17:54:03+05:00",
+    "alt": "100pcs 2 Watt 5% Resistor In Pakistan",
+    "width": 610,
+    "height": 610,
+    "src": "https://cdn.shopify.com/s/files/1/0559/7832/8150/files/1000-pcs-of-14-watt-quarter-0-25w-5-resistor-in-pakistan-709_1d50e665-a01c-4173-93fc-b39212e8e885.webp?v=1735044843",
+    "variant_ids": [],
+    "admin_graphql_api_id": "gid://shopify/ProductImage/33844286619734"
+  },
+  {
+    "id": 33844286652502,
+    "product_id": 7576191696982,
+    "position": 2,
+    "created_at": "2024-12-24T17:54:03+05:00",
+    "updated_at": "2024-12-24T17:54:03+05:00",
+    "alt": "100pcs 2 Watt 5% Resistor In Pakistan",
+    "width": 500,
+    "height": 500,
+    "src": "https://cdn.shopify.com/s/files/1/0559/7832/8150/files/1000-pcs-of-14-watt-quarter-0-25w-5-resistor-in-pakistan-825_babd190a-feb8-450e-8993-0e4331b3c97d.webp?v=1735044843",
+    "variant_ids": [],
+    "admin_graphql_api_id": "gid://shopify/ProductImage/33844286652502"
+  }],
+  "image":
+  {
+    "id": 33844286619734,
+    "product_id": 7576191696982,
+    "position": 1,
+    "created_at": "2024-12-24T17:54:03+05:00",
+    "updated_at": "2024-12-24T17:54:03+05:00",
+    "alt": "100pcs 2 Watt 5% Resistor In Pakistan",
+    "width": 610,
+    "height": 610,
+    "src": "https://cdn.shopify.com/s/files/1/0559/7832/8150/files/1000-pcs-of-14-watt-quarter-0-25w-5-resistor-in-pakistan-709_1d50e665-a01c-4173-93fc-b39212e8e885.webp?v=1735044843",
+    "variant_ids": [],
+    "admin_graphql_api_id": "gid://shopify/ProductImage/33844286619734"
+  },
+  "media": [
+  {
+    "id": 26319604121686,
+    "product_id": 7576191696982,
+    "position": 1,
+    "created_at": "2024-12-24T17:54:03+05:00",
+    "updated_at": "2024-12-24T17:54:03+05:00",
+    "alt": "100pcs 2 Watt 5% Resistor In Pakistan",
+    "status": "READY",
+    "media_content_type": "IMAGE",
+    "preview_image":
+    {
+      "width": 610,
+      "height": 610,
+      "src": "https://cdn.shopify.com/s/files/1/0559/7832/8150/files/1000-pcs-of-14-watt-quarter-0-25w-5-resistor-in-pakistan-709_1d50e665-a01c-4173-93fc-b39212e8e885.webp?v=1735044843",
+      "status": "READY"
+    },
+    "variant_ids": [],
+    "admin_graphql_api_id": "gid://shopify/MediaImage/26319604121686"
+  },
+  {
+    "id": 26319604154454,
+    "product_id": 7576191696982,
+    "position": 2,
+    "created_at": "2024-12-24T17:54:03+05:00",
+    "updated_at": "2024-12-24T17:54:03+05:00",
+    "alt": "100pcs 2 Watt 5% Resistor In Pakistan",
+    "status": "READY",
+    "media_content_type": "IMAGE",
+    "preview_image":
+    {
+      "width": 500,
+      "height": 500,
+      "src": "https://cdn.shopify.com/s/files/1/0559/7832/8150/files/1000-pcs-of-14-watt-quarter-0-25w-5-resistor-in-pakistan-825_babd190a-feb8-450e-8993-0e4331b3c97d.webp?v=1735044843",
+      "status": "READY"
+    },
+    "variant_ids": [],
+    "admin_graphql_api_id": "gid://shopify/MediaImage/26319604154454"
+  }],
+  "variant_gids": [
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067566678",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067632214",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067697750",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067763286",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067828822",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067894358",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394067959894",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068025430",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068090966",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068156502",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068222038",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  },
+  {
+    "admin_graphql_api_id": "gid://shopify/ProductVariant/42394068287574",
+    "updated_at": "2025-06-19T09:18:38.000Z"
+  }],
+  "has_variants_that_requires_components": False,
+  "category":
+  {
+    "admin_graphql_api_id": "gid://shopify/TaxonomyCategory/el-3-5-4",
+    "name": "Resistors",
+    "full_name": "Electronics \u003E Circuit Boards & Components \u003E Passive Circuit Components \u003E Resistors"
+  }
+}
 new_product_webhook = {
     "id": 7512111579222,
     "title": "Yellow Snowboard",
@@ -3651,7 +4093,7 @@ if __name__ == "__main__":
     print("Test")
     # Product Sync Test
     print(asyncio.run(
-       service.handle_product_update(new_product)
+       service.handle_product_update(new_product_multivariant)
       ))
     
     # print(asyncio.run(
