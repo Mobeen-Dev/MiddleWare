@@ -64,6 +64,8 @@ class Settings(BaseSettings):
     # === Server Settings ===
     port: int = Field(alias="PORT")
     env: str = Field(alias="ENV")
+    api_key: str = Field(alias="API_KEY")
+    api_key_nam: str =Field(alias="API_KEY_NAME")
 
     class Config:
         # tell Pydantic to read a .env file from your project root

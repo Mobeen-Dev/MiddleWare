@@ -15,7 +15,8 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy the rest of your source code
 COPY . .
-
+RUN sed -i 's/\r$//' entrypoint.sh && \
+    chmod +x entrypoint.sh
 # make entrypoint.sh executable
 RUN chmod +x entrypoint.sh
 # Set proper permissions for storage directories
