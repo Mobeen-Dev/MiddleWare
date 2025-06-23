@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, status, Query, Depends
 from typing import List, Dict
 import uvicorn
+from config import settings
 from datetime import datetime
-
+from typing import Optional
 from ProductTitleStorage import ProductTitleStorage
 from tasks import *
 from fastapi.responses import FileResponse, Response
+from fastapi.security import APIKeyHeader
 import os
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,10 +15,11 @@ from fastapi.templating import Jinja2Templates
 from broker import broker
 from taskiq_fastapi import init as taskiq_init
 from logger import get_logger
+from models import ProductSchema, OrderWebhook, ProductDeleteSchema
+
 
 manager = ProductTitleStorage()
 app_logger = get_logger("WebApp")
-from models import ProductSchema, OrderWebhook, ProductDeleteSchema
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,7 +37,19 @@ app = FastAPI(
   lifespan=lifespan,
 )
 
-wow=    [
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+def get_api_key(api_key_header: str = Depends(api_key_header)):
+    if api_key_header == settings.api_key:
+        return api_key_header
+    else:
+      raise HTTPException(
+      status_code=status.HTTP_401_UNAUTHORIZED,
+      detail="Invalid API Key",
+      headers={"WWW-Authenticate": "ApiKey"},
+      )
+
+wow=[
         "https://b2b-control-panel.flutterflow.app",  # Production frontend
         "https://www.flutterflow.app",
         "https://app.flutterflow.io/",
@@ -124,21 +139,19 @@ async def delete_product_webhook(request: Request):
 
 
 @app.post("/create_product_webhook", summary="product create webhook endpoint")
-async def receive_data(request: Request):
+async def create_product_webhook(request: Request):
     return {"status": "Data received successfully."}
 
 
 @app.get("/ui", summary="FlutterFlow UI Endpoint")
-async def receive_data(request: Request):
-  print(manager.count())
-  print(manager.get_all())
+async def receive_data(api_key: str = Depends(get_api_key)):
   return {
     "count": manager.count(),
     "titles": manager.get_all()
   }
 
 
- 
+
 
 
 
