@@ -31,12 +31,6 @@ class Settings(BaseSettings):
     parent_shopify_store_name: str = Field(alias="PARENT_SHOPIFY_STORE_NAME")
     parent_shopify_api_version: str = Field(alias="PARENT_SHOPIFY_API_VERSION")
     
-    # === Shopify Child Store credentials ===
-    child_shopify_api_key: str = Field(alias="CHILD_SHOPIFY_API_KEY")
-    child_shopify_api_secret: str = Field(alias="CHILD_SHOPIFY_API_SECRET")
-    child_shopify_store_name: str = Field(alias="CHILD_SHOPIFY_STORE_NAME")
-    child_shopify_api_version: str = Field(alias="CHILD_SHOPIFY_API_VERSION")
-    
     # ── helper properties ────────────────────────────
     
     @property
@@ -59,13 +53,17 @@ class Settings(BaseSettings):
             "api_version": self.child_shopify_api_version,
         }
     
-
+    
+    
+    # === Shopify Child Store credentials ===
+    child_shopify_api_key: str = Field(alias="CHILD_SHOPIFY_API_KEY")
+    child_shopify_api_secret: str = Field(alias="CHILD_SHOPIFY_API_SECRET")
+    child_shopify_store_name: str = Field(alias="CHILD_SHOPIFY_STORE_NAME")
+    child_shopify_api_version: str = Field(alias="CHILD_SHOPIFY_API_VERSION")
 
     # === Server Settings ===
     port: int = Field(alias="PORT")
-    env: str = Field(alias="ENV")    
-    api_key=Field(alias="API_KEY")
-    api_key_name=Field(alias="API_KEY_NAME")
+    env: str = Field(alias="ENV")
 
     class Config:
         # tell Pydantic to read a .env file from your project root
