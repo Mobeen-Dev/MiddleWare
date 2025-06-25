@@ -1,5 +1,6 @@
 import asyncio
 
+from StressTester import *
 from config import settings
 from shopify import Shopify
 from sync_service import SyncService
@@ -4092,9 +4093,10 @@ parent_shopify = Shopify(settings.parent_store, "Parent Shopify")
 if __name__ == "__main__":
     print("Test")
     # Product Sync Test
-    print(asyncio.run(
-       service.handle_product_update(new_product_multivariant)
-      ))
+    payload = asyncio.run(
+       service.handle_all_products_sync()
+      )
+    asyncio.run(main("https://website/update_product_webhook",payload))
     
     # print(asyncio.run(
     #   parent_shopify.make_new_customer(test_new_customer)

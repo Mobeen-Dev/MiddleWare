@@ -49,10 +49,10 @@ def get_api_key(api_key_header: str = Depends(api_key_header)):
 
 
 wow=[
-        "https://b2b-control-panel.flutterflow.app",  # Production frontend
-        "https://www.flutterflow.app",
-        "https://app.flutterflow.io/",
-        "https://www.flutterflow.io/"
+    "https://b2b-control-panel.flutterflow.app",  # Production frontend
+    "https://www.flutterflow.app",
+    "https://app.flutterflow.io/",
+    "https://www.flutterflow.io/"
     ]
 
 
@@ -103,8 +103,8 @@ async def order_webhook(request: Request):
 
 
 @app.post("/receive", summary="Bypass Endpoint")
-async def receive_data(request: Request):
-    return {"status": "Data received successfully."}
+async def receive_data_endpoint(request: Request):
+    return {"status": "Data received successfully."} 
   
 
 
@@ -121,6 +121,17 @@ async def update_product_webhook(request: Request):
     app_logger.error("update_product_webhook :: %s", e)
     raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/refresh_products", summary="product update webhook endpoint")
+async def refresh_product_webhook():
+  try:
+    task = await refresh_all_products.kiq()
+    return {
+      "status": "queued",
+      "task_id": task.task_id
+    }
+  except Exception as e:
+    app_logger.error("refresh_products :: %s", e)
+    raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/delete_product_webhook", summary="product delete webhook endpoint")
 async def delete_product_webhook(request: Request):

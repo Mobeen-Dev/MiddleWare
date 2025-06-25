@@ -1,10 +1,12 @@
 import os
 import asyncio
+import time
+
 import aiohttp
 import re
-
 from logger import get_logger
 from supabase import create_client, Client
+
 
 class Shopify:
   def __init__(self, store:dict[str,str], logger_name:str="Shopify"):
@@ -148,6 +150,35 @@ class Shopify:
       
     return response.get("data", {}).get("product")
   
+  async def fetch_all_products(self):
+    all_products:list = []
+    query= self.all_products_query()
+    query_params={
+      "after": None
+    }
+
+    hasNextPage = True
+    while hasNextPage :
+      try:
+        result = await self.send_graphql_mutation(query, query_params, "GetProductsAndVariants")
+        result = result['data']['products']
+      except Exception as e:
+        await asyncio.sleep(25)
+        continue
+      # Pagintion Control
+      pageInfo = result["pageInfo"]
+      hasNextPage = pageInfo["hasNextPage"]
+      # hasNextPage = False
+      query_params['after'] = pageInfo["endCursor"]
+      # Product Handling Logic
+      products:list = result["nodes"]
+      for product in products:
+        product["admin_graphql_api_id"] = product["id"]
+        product["id"] = self.extract_id_from_gid(product["id"])
+      all_products.extend(products)
+    return all_products
+      
+  
   async def product_id_by_handle(self, product_handle: str):
     
     query = self.product_query_by_identifier()
@@ -186,7 +217,8 @@ class Shopify:
       
       # 3. Top-level GraphQL errors
       if "errors" in result:
-        raise RuntimeError(f"GraphQL errors: {result['errors']}")
+        await asyncio.sleep(25)
+        return await self.send_graphql_mutation(mutation, variables, receiver)
       
       data = result.get("data")
       if not data:
@@ -468,6 +500,56 @@ class Shopify:
         title
       }
     }
+    """
+  
+  def all_products_query(self):
+    return """
+      query GetProductsAndVariants($after: String) {
+        products(first: 249, after: $after) {
+          nodes {
+            category {
+              fullName
+            }
+            productType
+            id
+            description
+            title
+            vendor
+            handle
+            images(first: 10) {
+              edges {
+                node {
+                  url
+                }
+              }
+            }
+            variants(first: 249) {
+              nodes {
+                inventoryItem {
+                  measurement {
+                    weight {
+                      value
+                      unit
+                    }
+                  }
+                }
+                displayName
+                id
+                title
+                price
+                sellableOnlineQuantity
+                image {
+                  url
+                }
+              }
+            }
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+        }
+      }
     """
   
   async def set_product_status(self, id: int = 404, status: str = "DRAFT"):
