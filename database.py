@@ -77,9 +77,9 @@ class DB_Client:
             raise RuntimeError(res.error.message)
         self.logger.info("Deleted rows from %s where %s", table, filters)
         
-    def add_new_product(self, data):
+    async def add_new_product(self, data):
         product = data["data"]["products"]["edges"]["node"]
-        self.insert_parent_shopify_product_into_db(product)
+        await self.insert_parent_shopify_product_into_db(product)
 
     async def insert_parent_shopify_product_into_db(self, product):
         # Product Insertion
