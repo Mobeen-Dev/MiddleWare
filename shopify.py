@@ -1,11 +1,10 @@
 import os
-import asyncio
-import time
-
-import aiohttp
 import re
+import time
+import aiohttp
+import asyncio
 from logger import get_logger
-from supabase import create_client, Client
+
 
 
 class Shopify:
@@ -20,6 +19,34 @@ class Shopify:
     }
     
     self.logger = get_logger(logger_name)
+    
+  async def fetch_all_products(self):
+    all_products:list = []
+    query= self.all_products_query()
+    query_params={
+      "after": None
+    }
+
+    hasNextPage = True
+    while hasNextPage :
+      try:
+        result = await self.send_graphql_mutation(query, query_params, "GetProductsAndVariants")
+        result = result['data']['products']
+      except Exception as e:
+        await asyncio.sleep(25)
+        continue
+      # Pagintion Control
+      pageInfo = result["pageInfo"]
+      hasNextPage = pageInfo["hasNextPage"]
+      # hasNextPage = False
+      query_params['after'] = pageInfo["endCursor"]
+      # Product Handling Logic
+      products:list = result["nodes"]
+      for product in products:
+        product["admin_graphql_api_id"] = product["id"]
+        product["id"] = self.extract_id_from_gid(product["id"])
+      all_products.extend(products)
+    return all_products   
 
   async def fetch_product_by_id(self, product_id: int):
     product_gid = f"gid://shopify/Product/{product_id}"
@@ -148,36 +175,7 @@ class Shopify:
       self.logger.error(f"fetch_product_by_id::GraphQL errors: {errs}")  # optional
       return None
       
-    return response.get("data", {}).get("product")
-  
-  async def fetch_all_products(self):
-    all_products:list = []
-    query= self.all_products_query()
-    query_params={
-      "after": None
-    }
-
-    hasNextPage = True
-    while hasNextPage :
-      try:
-        result = await self.send_graphql_mutation(query, query_params, "GetProductsAndVariants")
-        result = result['data']['products']
-      except Exception as e:
-        await asyncio.sleep(25)
-        continue
-      # Pagintion Control
-      pageInfo = result["pageInfo"]
-      hasNextPage = pageInfo["hasNextPage"]
-      # hasNextPage = False
-      query_params['after'] = pageInfo["endCursor"]
-      # Product Handling Logic
-      products:list = result["nodes"]
-      for product in products:
-        product["admin_graphql_api_id"] = product["id"]
-        product["id"] = self.extract_id_from_gid(product["id"])
-      all_products.extend(products)
-    return all_products
-      
+    return response.get("data", {}).get("product")   
   
   async def product_id_by_handle(self, product_handle: str):
     
@@ -263,14 +261,7 @@ class Shopify:
     product_id = await self.product_id_by_handle(product_handle)
     if product_id:
       await self.delete_product_by_id(product_id)
-      
-  @staticmethod
-  def update_params(query_params):
-    variants = query_params.get("input", {}).get("variants", [])
-    for variant in variants:
-      del variant['title']
 
-    return query_params
   async def sync_product(self, p_id: int = 404, child_p_id: int = 404):
     product = await self.fetch_product_by_id(p_id)
     # print(product)
@@ -283,277 +274,8 @@ class Shopify:
     return new_product
     # print(wow)
   
-  async def update_product_status(child_p_id: int, status: bool = False) -> None:
-    # 1. Load credentials
-    SUPABASE_URL = os.getenv("SUPABASE_URL")
-    SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-    if not SUPABASE_URL or not SUPABASE_KEY:
-      raise ValueError("Set SUPABASE_URL and SUPABASE_KEY in .env")
-    
-    # 2. Initialize sync client
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)  # :contentReference[oaicite:0]{index=0}
-    
-    # 3. Offload the blocking update to a thread
-    response = await asyncio.to_thread(
-      lambda: supabase.table("products")
-      .update({"isActive": status})
-      .eq("child_id", child_p_id)
-      .execute()
-    )  # :contentReference[oaicite:1]{index=1}
-    
-    # 4. Handle result
-    # print(response)
-  
-  def parse_into_query_params(self, product: dict, child_p_id: str = None):
-    # product = await fetch_product(product_gid)
-    # print("Fetched product data:")
-    
-    def handle_variants(vary_items):
-      variants = vary_items.split(" / ")
-      variant_list = []
-      
-      for variant in variants:
-        parent_variant = [option["name"] for option in product["options"] if variant in option.get("values", [])]
-        opt = {"optionName": parent_variant[0], "name": variant}
-        variant_list.append(opt)
-        # {"optionName": product["options"][1]["name"], "name": variant["node"]["title"].split(' / ')[1]},
-      
-      return variant_list
-    
-    variants = product.get("variants").get("edges")
-    images = product["media"]["edges"]
-    variant_option = None
-    
-    query_values = {
-      "synchronous": True,
-      "input": {
-        "title": product["title"],
-        "descriptionHtml": product["descriptionHtml"],
-        "vendor": product["vendor"],
-        "productType": product["productType"],
-        "handle": product["handle"],
-        "tags": product["tags"],
-        "status": product["status"],
-        
-        "files": [
-          {
-            "filename": f"1.{image["node"]["image"]["url"].split("?", 1)[0].rpartition(".")[2]}",
-            "alt": "Product image",
-            "contentType": "IMAGE",
-            "duplicateResolutionMode": "APPEND_UUID",
-            "originalSource": image["node"]["image"]["url"].split("?", 1)[0]
-          }
-          for image in images
-        ],
-        # "productOptions":product["options"],
-        "productOptions": [{"name": option["name"], 'values': [{"name": value} for value in option["values"]]} for
-                           option in product["options"]],
-        "variants": [
-          {
-            "optionValues": handle_variants(variant["node"]["title"]),
-            "title": variant["node"]["title"],
-            "sku": variant["node"]["sku"],
-            "price": variant["node"]["price"],
-            "compareAtPrice": variant["node"]["compareAtPrice"],
-            "inventoryPolicy": variant["node"]["inventoryPolicy"],
-            "taxable": False,
-            
-            "inventoryQuantities": [
-              {
-                "locationId": "gid://shopify/Location/82558976224",
-                "name": "available",
-                "quantity": variant["node"]["inventoryQuantity"],
-              }
-            ],
-            "inventoryItem": {
-              "tracked": variant["node"]["inventoryItem"]["tracked"],
-              # "cost": 12.34,
-              "requiresShipping": variant["node"]["inventoryItem"]["requiresShipping"],
-              "measurement": variant["node"]["inventoryItem"]["measurement"],
-            }
-          }
-          for variant in variants
-        ]
-        
-      }
-    }
-    if child_p_id:
-      query_values["identifier"]= {"id" : child_p_id}
-    
-    return query_values
-  
-  def product_clone_update_mutation(self, update: bool=True):
-    if update:
-      return """
-          mutation ProductCopy($input: ProductSetInput!, $synchronous: Boolean!, $identifier: ProductSetIdentifiers!) {
-            productSet(input: $input, synchronous: $synchronous, identifier: $identifier) {
-              product {
-                id
-                variants(first: 249) {
-                  edges {
-                    node {
-                      title
-                      id
-                      sku
-                      price
-                      inventoryPolicy
-                      inventoryItem {
-                        tracked
-                      }
-                    }
-                  }
-                }
-              }
-              productSetOperation {
-                id
-                status
-                userErrors {
-                  code
-                  field
-                  message
-                }
-              }
-              userErrors {
-                code
-                field
-                message
-              }
-            }
-          }
-      """
-    else:
-      return """
-          mutation ProductCopy($input: ProductSetInput!, $synchronous: Boolean!) {
-            productSet(input: $input, synchronous: $synchronous) {
-              product {
-                id
-                variants(first: 249) {
-                  edges {
-                    node {
-                      title
-                      id
-                      sku
-                      price
-                      inventoryPolicy
-                      inventoryItem {
-                        tracked
-                      }
-                    }
-                  }
-                }
-              }
-              productSetOperation {
-                id
-                status
-                userErrors {
-                  code
-                  field
-                  message
-                }
-              }
-              userErrors {
-                code
-                field
-                message
-              }
-            }
-          }
-          """
-    
-  # status Update
-  def product_update_mutation(self):
-    return """
-    mutation UpdateProductStatus($id: ID!, $status: ProductStatus!) {
-      productSet(
-        identifier: { id: $id }
-        input: { status: $status }
-        synchronous: true
-      ) {
-        product {
-          id
-          title
-          status
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-    """
-  
-  def product_delete_mutation(self):
-    return """
-    mutation DeleteProduct($id: ID!) {
-      productDelete(input: {id: $id }) {
-        deletedProductId
-      }
-    }
-    """
-  
-  def product_query_by_identifier(self):
-    return """
-    query ($identifier: ProductIdentifierInput!) {
-      product: productByIdentifier(identifier: $identifier) {
-        id
-        handle
-        title
-      }
-    }
-    """
-  
-  def all_products_query(self):
-    return """
-      query GetProductsAndVariants($after: String) {
-        products(first: 249, after: $after) {
-          nodes {
-            category {
-              fullName
-            }
-            productType
-            id
-            description
-            title
-            vendor
-            handle
-            images(first: 10) {
-              edges {
-                node {
-                  url
-                }
-              }
-            }
-            variants(first: 249) {
-              nodes {
-                inventoryItem {
-                  measurement {
-                    weight {
-                      value
-                      unit
-                    }
-                  }
-                }
-                displayName
-                id
-                title
-                price
-                sellableOnlineQuantity
-                image {
-                  url
-                }
-              }
-            }
-          }
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-        }
-      }
-    """
-  
   async def set_product_status(self, id: int = 404, status: str = "DRAFT"):
-    mutation = self.product_update_mutation()
+    mutation = self.product_status_update_mutation()
     query_params = {
       "id": f"gid://shopify/Product/{id}",
       "status": status
@@ -572,29 +294,6 @@ class Shopify:
     mutation = self.product_clone_update_mutation(False) # False for creating Product
     new_product = await self.send_graphql_mutation(mutation, query_params)
     return new_product
-  
-  def customer_create_mutation(self)->str:
-    return  """
-    mutation CreateCustomer($input: CustomerInput!) {
-      customerCreate(input: $input) {
-        customer {
-          id
-          firstName
-          lastName
-          defaultEmailAddress{
-            emailAddress
-          }
-          defaultPhoneNumber{
-            phoneNumber
-          }
-        }
-        userErrors {
-          field
-          message
-        }
-      }
-    }
-    """
   
   async def make_new_customer(self, customer: dict):
     mutation = self.customer_create_mutation()
@@ -622,7 +321,7 @@ class Shopify:
       data = await self.send_graphql_mutation(mutation, variables, "Parent")
       new_customer = data["data"]["customerCreate"]["customer"]
       if new_customer:
-        print("id ay gayi")
+        # print("id ay gayi")
         return new_customer["id"]
       else:
         return await self.process_customer(customer)
@@ -707,7 +406,8 @@ class Shopify:
       self.logger.warning(f"process_customer :: Crash ::{e}")
       return None
   
-  def process_shipping_address(self, shipping_address: dict):
+  @staticmethod
+  def process_shipping_address(shipping_address: dict):
     return {
       "address1": shipping_address["address1"],
       "address2": shipping_address["address2"],
@@ -721,7 +421,8 @@ class Shopify:
       "zip": shipping_address["zip"],
     }
   
-  def draft_order_mutation(self):
+  @staticmethod
+  def draft_order_mutation():
     return """
       mutation draftOrderCreate($input: DraftOrderInput!) {
         draftOrderCreate(input: $input) {
@@ -733,7 +434,8 @@ class Shopify:
       }
       """
   
-  def extract_id_from_gid(self, gid: str) -> str:
+  @staticmethod
+  def extract_id_from_gid(gid: str) -> str:
     """
     Extract the ID from a Shopify GID string.
 
@@ -751,3 +453,289 @@ class Shopify:
     
     # Fallback: if no '/' found, return the original string
     return gid
+  
+  @staticmethod
+  def update_params(query_params):
+    variants = query_params.get("input", {}).get("variants", [])
+    for variant in variants:
+      del variant['title']
+
+    return query_params
+  
+  @staticmethod
+  def product_clone_update_mutation(update: bool = True):
+    if update:
+      return """
+            mutation ProductCopy($input: ProductSetInput!, $synchronous: Boolean!, $identifier: ProductSetIdentifiers!) {
+              productSet(input: $input, synchronous: $synchronous, identifier: $identifier) {
+                product {
+                  id
+                  variants(first: 249) {
+                    edges {
+                      node {
+                        title
+                        id
+                        sku
+                        price
+                        inventoryPolicy
+                        inventoryItem {
+                          tracked
+                        }
+                      }
+                    }
+                  }
+                }
+                productSetOperation {
+                  id
+                  status
+                  userErrors {
+                    code
+                    field
+                    message
+                  }
+                }
+                userErrors {
+                  code
+                  field
+                  message
+                }
+              }
+            }
+        """
+    else:
+      return """
+            mutation ProductCopy($input: ProductSetInput!, $synchronous: Boolean!) {
+              productSet(input: $input, synchronous: $synchronous) {
+                product {
+                  id
+                  variants(first: 249) {
+                    edges {
+                      node {
+                        title
+                        id
+                        sku
+                        price
+                        inventoryPolicy
+                        inventoryItem {
+                          tracked
+                        }
+                      }
+                    }
+                  }
+                }
+                productSetOperation {
+                  id
+                  status
+                  userErrors {
+                    code
+                    field
+                    message
+                  }
+                }
+                userErrors {
+                  code
+                  field
+                  message
+                }
+              }
+            }
+            """
+  
+  # status Update
+  @staticmethod
+  def product_status_update_mutation():
+    return """
+      mutation UpdateProductStatus($id: ID!, $status: ProductStatus!) {
+        productSet(
+          identifier: { id: $id }
+          input: { status: $status }
+          synchronous: true
+        ) {
+          product {
+            id
+            title
+            status
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+      """
+  
+  @staticmethod
+  def product_delete_mutation():
+    return """
+      mutation DeleteProduct($id: ID!) {
+        productDelete(input: {id: $id }) {
+          deletedProductId
+        }
+      }
+      """
+  
+  @staticmethod
+  def product_query_by_identifier():
+    return """
+      query ($identifier: ProductIdentifierInput!) {
+        product: productByIdentifier(identifier: $identifier) {
+          id
+          handle
+          title
+        }
+      }
+      """
+  
+  @staticmethod
+  def all_products_query():
+    return """
+        query GetProductsAndVariants($after: String) {
+          products(first: 249, after: $after) {
+            nodes {
+              category {
+                fullName
+              }
+              productType
+              id
+              description
+              title
+              vendor
+              handle
+              images(first: 10) {
+                edges {
+                  node {
+                    url
+                  }
+                }
+              }
+              variants(first: 249) {
+                nodes {
+                  inventoryItem {
+                    measurement {
+                      weight {
+                        value
+                        unit
+                      }
+                    }
+                  }
+                  displayName
+                  id
+                  title
+                  price
+                  sellableOnlineQuantity
+                  image {
+                    url
+                  }
+                }
+              }
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      """
+  
+  @staticmethod
+  def customer_create_mutation() -> str:
+    return """
+    mutation CreateCustomer($input: CustomerInput!) {
+      customerCreate(input: $input) {
+        customer {
+          id
+          firstName
+          lastName
+          defaultEmailAddress{
+            emailAddress
+          }
+          defaultPhoneNumber{
+            phoneNumber
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    """
+  
+  @staticmethod
+  def parse_into_query_params(product: dict, child_p_id: str = None):
+    # product = await fetch_product(product_gid)
+    # print("Fetched product data:")
+    
+    def handle_variants(vary_items):
+      variants = vary_items.split(" / ")
+      variant_list = []
+      
+      for variant in variants:
+        parent_variant = [option["name"] for option in product["options"] if variant in option.get("values", [])]
+        opt = {"optionName": parent_variant[0], "name": variant}
+        variant_list.append(opt)
+        # {"optionName": product["options"][1]["name"], "name": variant["node"]["title"].split(' / ')[1]},
+      
+      return variant_list
+    
+    variants = product.get("variants").get("edges")
+    images = product["media"]["edges"]
+    variant_option = None
+    
+    query_values = {
+      "synchronous": True,
+      "input": {
+        "title": product["title"],
+        "descriptionHtml": product["descriptionHtml"],
+        "vendor": product["vendor"],
+        "productType": product["productType"],
+        "handle": product["handle"],
+        "tags": product["tags"],
+        "status": product["status"],
+        
+        "files": [
+          {
+            "filename": f"1.{image["node"]["image"]["url"].split("?", 1)[0].rpartition(".")[2]}",
+            "alt": "Product image",
+            "contentType": "IMAGE",
+            "duplicateResolutionMode": "APPEND_UUID",
+            "originalSource": image["node"]["image"]["url"].split("?", 1)[0]
+          }
+          for image in images
+        ],
+        # "productOptions":product["options"],
+        "productOptions": [{"name": option["name"], 'values': [{"name": value} for value in option["values"]]} for
+                           option in product["options"]],
+        "variants": [
+          {
+            "optionValues": handle_variants(variant["node"]["title"]),
+            "title": variant["node"]["title"],
+            "sku": variant["node"]["sku"],
+            "price": variant["node"]["price"],
+            "compareAtPrice": variant["node"]["compareAtPrice"],
+            "inventoryPolicy": variant["node"]["inventoryPolicy"],
+            "taxable": False,
+            
+            "inventoryQuantities": [
+              {
+                "locationId": "gid://shopify/Location/82558976224",
+                "name": "available",
+                "quantity": variant["node"]["inventoryQuantity"],
+              }
+            ],
+            "inventoryItem": {
+              "tracked": variant["node"]["inventoryItem"]["tracked"],
+              # "cost": 12.34,
+              "requiresShipping": variant["node"]["inventoryItem"]["requiresShipping"],
+              "measurement": variant["node"]["inventoryItem"]["measurement"],
+            }
+          }
+          for variant in variants
+        ]
+        
+      }
+    }
+    if child_p_id:
+      query_values["identifier"] = {"id": child_p_id}
+    
+    return query_values

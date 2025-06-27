@@ -1,4 +1,6 @@
 import asyncio
+import time
+
 from supabase import create_client, Client
 from config import settings
 from logger import get_logger
@@ -10,8 +12,12 @@ class DB_Client:
             settings.supabase_url, settings.supabase_key
         )
         self.logger = get_logger("SupabaseClient")
-        self.variant_table = "n_variants"
-        self.product_table = "n_products"
+        if settings.env == "DEVELOPMENT":
+            self.variant_table = "n_variants"
+            self.product_table = "n_products"
+        else:
+            self.variant_table = "variants"
+            self.product_table = "products"
 
     def upsert(
         self,
@@ -83,7 +89,7 @@ class DB_Client:
 
     async def insert_parent_shopify_product_into_db(self, product):
         # Product Insertion
-        self.logger.info(f"Inserting parent shopify product into db {product.id}")
+        self.logger.info(f"Inserting parent shopify product into db {product['id']}")
         full_product_id = product["id"]
         pid = full_product_id.split('/')[-1]
         pid = int(pid)
@@ -315,4 +321,30 @@ class DB_Client:
         except Exception as e:
             self.logger.error("Exception during bulk image update: %s", str(e))
             raise
+    
+    def update_product_retail_price(self, variants):
+      try:
+        for variant_entry in variants:
+            node = variant_entry['node']
+            variant_id = node['id'].split('/')[-1]
+            retail_price = float(node['price'])  # cast to float if your DB expects numeric
+            
+            response =  self.client.table(self.variant_table).update({
+                "retail_price": retail_price
+            }).eq("vid", variant_id).execute()
+            
+            self.logger.info(f"Updated variant {variant_id} retail Price {retail_price}")
+        
 
+      except Exception as e:
+          error_msg = str(e).lower()
+          if "rate limit" in error_msg or "limit exceeded" in error_msg or "throttled" in error_msg:
+              self.logger.warning("Rate limit exceeded, waiting 5 seconds before retrying...")
+              time.sleep(7)
+              # Retry by recursively calling this function and returning its result
+              return self.update_product_retail_price(variants)
+          else:
+              # Fatal/unexpected error: just log and return None
+              self.logger.error(f"Fatal error while updating variants: {e}", exc_info=True)
+              return None
+      

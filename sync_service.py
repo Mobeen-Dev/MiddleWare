@@ -1,8 +1,9 @@
-from shopify import  Shopify
-from database import DB_Client
-from logger import get_logger
-from config import settings
 from tasks import *
+from config import settings
+from shopify import  Shopify
+from logger import get_logger
+from database import DB_Client
+
 
 class SyncService:
   def __init__(self):
@@ -11,14 +12,14 @@ class SyncService:
     self.db = DB_Client()
     self.logger = get_logger("SyncService")
     
-  def handle_product_create(self, product):
-    self.db.add_new_product(product)
+  async def handle_product_create(self, product):
+    await self.db.add_new_product(product)
   
   async def handle_product_update(self, response):
     parent_pid = response['id']
     child_pid, sync_enable, variants_count_db =  self.db.verify_sync_product(parent_pid)
     # print("\n\n Verify sync product output")
-    print("child_pid", child_pid, "sync_enable",sync_enable, "variants_count",variants_count_db)
+    # print("child_pid", child_pid, "sync_enable",sync_enable, "variants_count",variants_count_db)
     
     # Product is not in DB *NewProduct
     if child_pid==404 and not sync_enable :
@@ -27,7 +28,7 @@ class SyncService:
         await self.db.insert_parent_shopify_product_into_db(product_data)
       
 
-      print("this is not present in our database")
+      # print("this is not present in our database")
       return
       #return self.handle_product_create(product)
     if not sync_enable:
@@ -45,8 +46,9 @@ class SyncService:
     # if not valid return
     # if not present in db createproduct
 
-
     product_data = await self.parent_shopify.fetch_product_by_id(parent_pid)
+    
+    self.db.update_product_retail_price(product_data['variants']['edges'])
 
     # print("product_data")
     # print(product_data)
@@ -74,24 +76,11 @@ class SyncService:
         self.logger.info(f"Product Created :: parent {parent_pid} -> child {product_id} updated")
       else:
         self.logger.warning(f"Product Creation Not Successful :: parent {parent_pid}")
+        
   async def handle_product_delete(self, product):
     # query database to remove p_id and its associated vid
     pass
   
-  @staticmethod
-  def calculate_price(price_list):
-    for record in price_list:
-      if record['b2b_prcnt']:
-        record['b2b_price']=record['b2b_discount']*record['retail_price']/100
-    return price_list
-  @staticmethod
-  def apply_price_on_params(query_params, price_list):
-    variants = query_params.get("input", {}).get("variants", [])
-    for variant in variants:
-      for record in price_list:
-        if record['title'] == variant['title']:
-          variant['price'] = record['b2b_price']
-    return variants
   def update_params(self, query_params, price_list):
     price_list = self.calculate_price(price_list)
     updated_variants = self.apply_price_on_params(query_params, price_list)
@@ -175,4 +164,20 @@ class SyncService:
         "quantity": qty,
       })
     return updated_line_items, total_bill
+  
+  @staticmethod
+  def calculate_price(price_list):
+    for record in price_list:
+      if record['b2b_prcnt']:
+        record['b2b_price'] = record['b2b_discount'] * record['retail_price'] / 100
+    return price_list
+  
+  @staticmethod
+  def apply_price_on_params(query_params, price_list):
+    variants = query_params.get("input", {}).get("variants", [])
+    for variant in variants:
+      for record in price_list:
+        if record['title'] == variant['title']:
+          variant['price'] = record['b2b_price']
+    return variants
   

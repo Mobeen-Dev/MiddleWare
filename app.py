@@ -1,21 +1,22 @@
-from fastapi import FastAPI, Request, HTTPException, status, Query, Depends
-from typing import List, Dict
-import uvicorn
-from config import settings
-from datetime import datetime
-from typing import Optional
-from ProductTitleStorage import ProductTitleStorage
-from tasks import *
-from fastapi.responses import FileResponse, Response
-from fastapi.security import APIKeyHeader
 import os
-from contextlib import asynccontextmanager
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.templating import Jinja2Templates
+import uvicorn
+from tasks import *
 from broker import broker
-from taskiq_fastapi import init as taskiq_init
+from config import settings
+from typing import Optional
+from typing import List, Dict
+from datetime import datetime
 from logger import get_logger
+from fastapi.security import APIKeyHeader
+from contextlib import asynccontextmanager
+from taskiq_fastapi import init as taskiq_init
+from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
+from ProductTitleStorage import ProductTitleStorage
+from fastapi.responses import FileResponse, Response
 from models import ProductSchema, OrderWebhook, ProductDeleteSchema
+from fastapi import FastAPI, Request, HTTPException, status, Query, Depends
+
 
 manager = ProductTitleStorage()
 app_logger = get_logger("WebApp")
