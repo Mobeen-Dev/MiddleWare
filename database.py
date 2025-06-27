@@ -10,8 +10,8 @@ class DB_Client:
             settings.supabase_url, settings.supabase_key
         )
         self.logger = get_logger("SupabaseClient")
-        self.variant_table = "variants"
-        self.product_table = "products"
+        self.variant_table = "n_variants"
+        self.product_table = "n_products"
 
     def upsert(
         self,

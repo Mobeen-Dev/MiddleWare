@@ -43,9 +43,11 @@ services:
           AMQP_URL: "amqp://guest:guest@rabbitmq:5672/"   # Development only
     volumes:
       # Mount persistent storage
-      - /home/devops/bucket:/app/bucket
-      - /home/devops/creds:/app/credentials
-      # - ./credentials:/app/credentials
+      # - /home/devops/bucket:/app/bucket
+      - ./bucket:/app/bucket
+      # Mount credentials directory44
+      # - /home/devops/creds:/app/credentials
+      - ./credentials:/app/credentials
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 60s
