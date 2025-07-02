@@ -71,7 +71,12 @@ templates = Jinja2Templates(directory="templates")
 taskiq_init(broker, "app:app")
 
 data_store: List[Dict] = []
-    
+
+@app.get("/")
+async def display_data(request: Request):
+  return templates.TemplateResponse("index.html", {"request": request})
+
+
 @app.get(
   "/health",
   summary="Health check",
@@ -86,41 +91,12 @@ async def health_check():
         "version": "1.0.0"
     }
 
-# ——— webhook endpoints ————————————————————————
-@app.post("/order_webhook", summary="Incoming Order Webhook Endpoint")
-async def order_webhook(request: Request):
-  try:
-    payload:OrderWebhook = await request.json()
-    task = await process_order.kiq(payload)  # ← returns AsyncTaskiqTask
-    return {
-      "status": "queued",
-      "task_id": task.task_id
-    }
-  except Exception as e:
-    app_logger.error("order_webhook :: %s", e)
-    raise HTTPException(status_code=400, detail=str(e))
-
-  
-
-
-@app.post("/receive", summary="Bypass Endpoint")
-async def receive_data_endpoint(request: Request):
-    return {"status": "Data received successfully."} 
-  
-
-
-@app.post("/update_product_webhook", summary="product update webhook endpoint")
-async def update_product_webhook(request: Request):
-  try:
-    payload:ProductSchema = await request.json()
-    task = await process_product_update.kiq(payload)
-    return {
-      "status": "queued",
-      "task_id": task.task_id
-    }
-  except Exception as e:
-    app_logger.error("update_product_webhook :: %s", e)
-    raise HTTPException(status_code=400, detail=str(e))
+@app.get("/ui", summary="FlutterFlow UI Endpoint")
+async def receive_data(api_key: str = Depends(get_api_key)):
+  return {
+    "count": manager.count(),
+    "titles": manager.get_all()
+  }
 
 @app.get("/refresh_products", summary="product update webhook endpoint")
 async def refresh_product_webhook():
@@ -133,36 +109,6 @@ async def refresh_product_webhook():
   except Exception as e:
     app_logger.error("refresh_products :: %s", e)
     raise HTTPException(status_code=400, detail=str(e))
-
-@app.post("/delete_product_webhook", summary="product delete webhook endpoint")
-async def delete_product_webhook(request: Request):
-  try:
-    payload:ProductDeleteSchema = await request.json()
-    # task = await process_product_update.kiq(payload)
-    return {
-      "status": "queued",
-      # "task_id": task.task_id
-    }
-  except Exception as e:
-    app_logger.error("delete_product_webhook :: %s", e)
-    raise HTTPException(status_code=400, detail=str(e))
-  
-
-
-@app.post("/create_product_webhook", summary="product create webhook endpoint")
-async def create_product_webhook(request: Request):
-    return {"status": "Data received successfully."}
-
-
-@app.get("/ui", summary="FlutterFlow UI Endpoint")
-async def receive_data(api_key: str = Depends(get_api_key)):
-  return {
-    "count": manager.count(),
-    "titles": manager.get_all()
-  }
-
-
-
 
 
 @app.get("/data-feed.csv")
@@ -185,10 +131,6 @@ async def serve_csv_file():
         }
     )
 
-@app.get("/display")
-@app.get("/")
-async def display_data(request: Request):
-  return templates.TemplateResponse("index.html", {"request": request})
 
 # ——— optional: task status endpoint ————————————————
 @app.get("/tasks/{task_id}")
@@ -197,6 +139,92 @@ async def task_status(task_id: str):
     # if res:
     #     return res.dict()         # {"status": "success", "return_value": …}
     return {"state": "PENDING"}
+  
+    
+    
+
+  
+
+
+@app.post("/receive", summary="Bypass Endpoint")
+async def receive_data_endpoint(request: Request):
+    return {"status": "Data received successfully."} 
+  
+
+@app.post("/create_product_webhook", summary="product create webhook endpoint")
+async def create_product_webhook(request: Request):
+    return {"status": "Data received successfully."}
+  
+@app.post("/update_product_webhook", summary="product update webhook endpoint")
+async def update_product_webhook(request: Request):
+  try:
+    payload:ProductSchema = await request.json()
+    task = await process_product_update.kiq(payload)
+    return {
+      "status": "queued",
+      "task_id": task.task_id
+    }
+  except Exception as e:
+    app_logger.error("update_product_webhook :: %s", e)
+    raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/delete_product_webhook", summary="product delete webhook endpoint")
+async def delete_product_webhook(request: Request):
+  try:
+    payload:ProductDeleteSchema = await request.json()
+    # task = await process_product_update.kiq(payload)
+    return {
+      "status": "queued",
+      # "task_id": task.task_id
+    }
+  except Exception as e:
+    app_logger.error("delete_product_webhook :: %s", e)
+    raise HTTPException(status_code=400, detail=str(e))
+  
+
+
+# ——— webhook endpoints ————————————————————————
+@app.post("/order_webhook", summary="Get Order Data Webhook Endpoint")
+async def order_webhook_get():
+    """
+    Handles Request of order webhooks via GET request.
+    """
+    return {"message": "Order webhook DELETE received successfully!"}
+  
+@app.post("/order_webhook", summary="Incoming Order Webhook Endpoint")
+async def order_webhook_post(request: Request):
+  try:
+    payload:OrderWebhook = await request.json()
+    task = await process_order.kiq(payload)  # ← returns AsyncTaskiqTask
+    return {
+      "status": "queued",
+      "task_id": task.task_id
+    }
+  except Exception as e:
+    app_logger.error("order_webhook :: %s", e)
+    raise HTTPException(status_code=400, detail=str(e))
+
+@app.put("/order_webhook", summary="Update Order Webhook Endpoint")
+def order_webhook_put():
+    """
+    Handles updates to webhooks via PUT request.
+    """
+    return {"message": "Order webhook PUT received successfully!"}
+
+
+@app.delete("/order_webhook", summary="Delete Order Webhook Endpoint")
+def order_webhook_delete():
+    """
+    Handles deletion of order webhooks via DELETE request.
+    """
+    return {"message": "Order webhook DELETE received successfully!"}
+
+
+
+
+
+
 
 def main():
     uvicorn.run(
