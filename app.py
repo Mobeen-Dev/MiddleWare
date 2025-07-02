@@ -185,13 +185,20 @@ async def delete_product_webhook(request: Request):
 
 
 # ——— webhook endpoints ————————————————————————
-@app.post("/order_webhook", summary="Get Order Data Webhook Endpoint")
+@app.get("/order_webhook", summary="Get Order Data Webhook Endpoint")
 async def order_webhook_get():
     """
     Handles Request of order webhooks via GET request.
     """
     return {"message": "Order webhook DELETE received successfully!"}
-  
+
+@app.put("/order_webhook", summary="Update Order Webhook Endpoint")
+def order_webhook_put():
+    """
+    Handles updates to webhooks via PUT request.
+    """
+    return {"message": "Order webhook PUT received successfully!"}
+
 @app.post("/order_webhook", summary="Incoming Order Webhook Endpoint")
 async def order_webhook_post(request: Request):
   try:
@@ -204,14 +211,6 @@ async def order_webhook_post(request: Request):
   except Exception as e:
     app_logger.error("order_webhook :: %s", e)
     raise HTTPException(status_code=400, detail=str(e))
-
-@app.put("/order_webhook", summary="Update Order Webhook Endpoint")
-def order_webhook_put():
-    """
-    Handles updates to webhooks via PUT request.
-    """
-    return {"message": "Order webhook PUT received successfully!"}
-
 
 @app.delete("/order_webhook", summary="Delete Order Webhook Endpoint")
 def order_webhook_delete():
