@@ -661,8 +661,8 @@ class Shopify:
     }
     """
   
-  @staticmethod
-  def parse_into_query_params(product: dict, child_p_id: str = None):
+
+  def parse_into_query_params(self, product: dict, child_p_id: str = None):
     # product = await fetch_product(product_gid)
     # print("Fetched product data:")
     
@@ -678,64 +678,67 @@ class Shopify:
       
       return variant_list
     
-    variants = product.get("variants").get("edges")
-    images = product["media"]["edges"]
-    variant_option = None
-    
-    query_values = {
-      "synchronous": True,
-      "input": {
-        "title": product["title"],
-        "descriptionHtml": product["descriptionHtml"],
-        "vendor": product["vendor"],
-        "productType": product["productType"],
-        "handle": product["handle"],
-        "tags": product["tags"],
-        "status": product["status"],
-        
-        "files": [
-          {
-            "filename": f"1.{image["node"]["image"]["url"].split("?", 1)[0].rpartition(".")[2]}",
-            "alt": "Product image",
-            "contentType": "IMAGE",
-            "duplicateResolutionMode": "APPEND_UUID",
-            "originalSource": image["node"]["image"]["url"].split("?", 1)[0]
-          }
-          for image in images
-        ],
-        # "productOptions":product["options"],
-        "productOptions": [{"name": option["name"], 'values': [{"name": value} for value in option["values"]]} for
-                           option in product["options"]],
-        "variants": [
-          {
-            "optionValues": handle_variants(variant["node"]["title"]),
-            "title": variant["node"]["title"],
-            "sku": variant["node"]["sku"],
-            "price": variant["node"]["price"],
-            "compareAtPrice": variant["node"]["compareAtPrice"],
-            "inventoryPolicy": variant["node"]["inventoryPolicy"],
-            "taxable": False,
-            
-            "inventoryQuantities": [
-              {
-                "locationId": "gid://shopify/Location/82558976224",
-                "name": "available",
-                "quantity": variant["node"]["inventoryQuantity"],
-              }
-            ],
-            "inventoryItem": {
-              "tracked": variant["node"]["inventoryItem"]["tracked"],
-              # "cost": 12.34,
-              "requiresShipping": variant["node"]["inventoryItem"]["requiresShipping"],
-              "measurement": variant["node"]["inventoryItem"]["measurement"],
+    query_values = {}
+    try:
+      variants = product.get("variants").get("edges")
+      images = product["media"]["edges"]
+      variant_option = None
+      
+      query_values = {
+        "synchronous": True,
+        "input": {
+          "title": product["title"],
+          "descriptionHtml": product["descriptionHtml"],
+          "vendor": product["vendor"],
+          "productType": product["productType"],
+          "handle": product["handle"],
+          "tags": product["tags"],
+          "status": product["status"],
+          
+          "files": [
+            {
+              "filename": f"1.{image["node"]["image"]["url"].split("?", 1)[0].rpartition(".")[2]}",
+              "alt": "Product image",
+              "contentType": "IMAGE",
+              "duplicateResolutionMode": "APPEND_UUID",
+              "originalSource": image["node"]["image"]["url"].split("?", 1)[0]
             }
-          }
-          for variant in variants
-        ]
-        
+            for image in images
+          ],
+          # "productOptions":product["options"],
+          "productOptions": [{"name": option["name"], 'values': [{"name": value} for value in option["values"]]} for
+                             option in product["options"]],
+          "variants": [
+            {
+              "optionValues": handle_variants(variant["node"]["title"]),
+              "title": variant["node"]["title"],
+              "sku": variant["node"]["sku"],
+              "price": variant["node"]["price"],
+              "compareAtPrice": variant["node"]["compareAtPrice"],
+              "inventoryPolicy": variant["node"]["inventoryPolicy"],
+              "taxable": False,
+              
+              "inventoryQuantities": [
+                {
+                  "locationId": "gid://shopify/Location/82558976224",
+                  "name": "available",
+                  "quantity": variant["node"]["inventoryQuantity"],
+                }
+              ],
+              "inventoryItem": {
+                "tracked": variant["node"]["inventoryItem"]["tracked"],
+                # "cost": 12.34,
+                "requiresShipping": variant["node"]["inventoryItem"]["requiresShipping"],
+                "measurement": variant["node"]["inventoryItem"]["measurement"],
+              }
+            }
+            for variant in variants
+          ]
+          
+        }
       }
-    }
-    if child_p_id:
-      query_values["identifier"] = {"id": child_p_id}
-    
+      if child_p_id:
+        query_values["identifier"] = {"id": child_p_id}
+    except Exception as w:
+      self.logger.error(w)
     return query_values

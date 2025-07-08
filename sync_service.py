@@ -67,7 +67,10 @@ class SyncService:
     else:
       # await self.db.insert_parent_shopify_product_into_db(product_data)
       query_params = self.child_shopify.parse_into_query_params(product_data)
+      self.logger.info("QueryParams on line 69 Passed")
       query_params = self.update_params(query_params, price_list)
+      self.logger.info("QueryParams Update on line 72 Passed")
+
       response = await self.child_shopify.create_product(query_params)
       if response:
         product_id = response["product"]["id"]
