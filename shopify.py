@@ -17,7 +17,7 @@ class Shopify:
       "Content-Type": "application/json",
       "X-Shopify-Access-Token": self.ACCESS_TOKEN
     }
-    
+
     self.logger = get_logger(logger_name)
     
   async def fetch_all_products(self):
@@ -720,7 +720,8 @@ class Shopify:
               
               "inventoryQuantities": [
                 {
-                  "locationId": "gid://shopify/Location/82558976224",
+                  "locationId": "gid://shopify/Location/106586440049",
+                  
                   "name": "available",
                   "quantity": variant["node"]["inventoryQuantity"],
                 }

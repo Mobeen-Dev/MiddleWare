@@ -1,4 +1,3 @@
-from tasks import *
 from config import settings
 from shopify import  Shopify
 from logger import get_logger
@@ -99,11 +98,9 @@ class SyncService:
     # delete the previous product create a new product
     pass
   
-  async def handle_all_products_sync(self):
+  async def get_all_products(self):
     products = await self.parent_shopify.fetch_all_products()
     self.logger.info(f"Product Sync :: All Products Fetched count : {len(products)}")
-    for product in products:
-      await process_product_update.kiq(product)
   
     return products
   

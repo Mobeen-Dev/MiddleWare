@@ -16,5 +16,7 @@ async def process_product_update(payload: dict) -> str:
 
 @broker.task(retry_on_error=True, max_retries=3)
 async def refresh_all_products() -> str:
-    await service.handle_all_products_sync()
+    products = await service.get_all_products()
+    for product in products:
+      await process_product_update.kiq(product)
     return "ok"

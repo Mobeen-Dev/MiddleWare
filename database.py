@@ -161,7 +161,6 @@ class DB_Client:
                 .maybe_single()  # returns None if no row
                 .execute()
             )
-            print(resp)
             if not resp: # id is not present in DB
                 return 404, False , None
             
