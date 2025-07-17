@@ -57,7 +57,7 @@ A robust middleware service that bridges e-commerce platforms with internal syst
 ## 🛠️ Tech Stack
 
 - **Language**: Python 3.8+
-- **Web Framework**: Flask/FastAPI (based on custom_server.py)
+- **Web Framework**: FastAPI
 - **Message Queue**: RabbitMQ
 - **Database**: SQLAlchemy ORM compatible
 - **API Integration**: Shopify API
