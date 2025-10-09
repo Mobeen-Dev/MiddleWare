@@ -86,6 +86,7 @@ async def health_check():
     """Health check endpoint for deployment verification"""
     return {
         "status": "healthy",
+        "Name": "Person1",
         "timestamp": datetime.now().isoformat(),
         "service": "fastapi-app",
         "version": "1.0.0"
