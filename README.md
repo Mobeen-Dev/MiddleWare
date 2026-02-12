@@ -428,7 +428,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Your Name** - *Initial work* - [YourGitHub](https://github.com/Mobeen-Dev)
+- **Mobeen Qamar** - *Initial work* - [YourGitHub](https://github.com/Mobeen-Dev)
 
 ## 🙏 Acknowledgments
 
